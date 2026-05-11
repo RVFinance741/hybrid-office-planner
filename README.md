@@ -1,1 +1,1 @@
-# hybrid-office-planner
+Review and manage your schduele with ease 
