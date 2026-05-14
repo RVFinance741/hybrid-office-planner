@@ -1,0 +1,2988 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hybrid Office Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ── LIGHT THEME ─────────────────────────────────────────────── */
+    :root {
+      --bg:            #EDF0F5;
+      --surface:       #FFFFFF;
+      --surface-2:     #F7F8FA;
+      --surface-3:     #F0F2F7;
+      --header-bg:     #0C1220;
+      --accent:        #4F6BED;
+      --accent-hover:  #3D58D8;
+      --accent-light:  #EBF0FF;
+      --success:       #059669;
+      --success-bg:    #ECFDF5;
+      --warn:          #C87A10;
+      --warn-bg:       #FFFBEB;
+      --danger:        #DC2626;
+      --danger-bg:     #FEF2F2;
+      --text:          #0F172A;
+      --text-muted:    #64748B;
+      --text-subtle:   #94A3B8;
+      --border:        #E2E6EE;
+      --border-strong: #CBD2DC;
+      --shadow-xs:     0 1px 2px rgba(0,0,0,0.04);
+      --shadow-sm:     0 1px 3px rgba(0,0,0,0.07),0 1px 2px rgba(0,0,0,0.04);
+      --pro-grad:      linear-gradient(135deg,#F59E0B 0%,#EF4444 100%);
+      --font:          'Figtree', system-ui, sans-serif;
+      --mono:          'JetBrains Mono','Fira Mono',monospace;
+      --radius-xs:     4px;
+      --radius-sm:     6px;
+      --radius:        10px;
+      --radius-lg:     14px;
+      /* day-type colours */
+      --cell-office-bg:      #EBF0FF;
+      --cell-office-bd:      #4F6BED;
+      --cell-wfh-bg:         #ECFDF5;
+      --cell-wfh-bd:         #6EE7B7;
+      --cell-holiday-bg:     #FFFBEB;
+      --cell-holiday-bd:     #FCD34D;
+      --cell-pto-bg:         #F5F3FF;
+      --cell-pto-bd:         #C4B5FD;
+      --cell-vacation-bg:    #FFFBEB;
+      --cell-vacation-bd:    #F59E0B;
+      --cell-sick-bg:        #FFF1F2;
+      --cell-sick-bd:        #FDA4AF;
+      --cell-conference-bg:  #EFF6FF;
+      --cell-conference-bd:  #93C5FD;
+      --cell-custom-bg:      #F0FDFA;
+      --cell-custom-bd:      #5EEAD4;
+    }
+    /* ── DARK THEME ──────────────────────────────────────────────── */
+    [data-theme="dark"] {
+      --bg:            #0D1117;
+      --surface:       #161B27;
+      --surface-2:     #1C2333;
+      --surface-3:     #222A3D;
+      --accent-light:  rgba(79,107,237,0.15);
+      --success-bg:    #052E1A;
+      --warn-bg:       #261900;
+      --danger-bg:     #2D0909;
+      --text:          #CDD9F0;
+      --text-muted:    #7B93B8;
+      --text-subtle:   #4D6380;
+      --border:        #2A3650;
+      --border-strong: #374766;
+      --shadow-xs:     0 1px 2px rgba(0,0,0,0.35);
+      --shadow-sm:     0 2px 6px rgba(0,0,0,0.45),0 1px 2px rgba(0,0,0,0.3);
+      --cell-office-bg:      rgba(79,107,237,0.14);
+      --cell-office-bd:      rgba(79,107,237,0.5);
+      --cell-wfh-bg:         rgba(5,150,105,0.12);
+      --cell-wfh-bd:         rgba(110,231,183,0.3);
+      --cell-holiday-bg:     rgba(200,122,16,0.12);
+      --cell-holiday-bd:     rgba(252,211,77,0.3);
+      --cell-pto-bg:         rgba(124,58,237,0.12);
+      --cell-pto-bd:         rgba(196,181,253,0.3);
+      --cell-vacation-bg:    rgba(217,119,6,0.12);
+      --cell-vacation-bd:    rgba(252,211,77,0.3);
+      --cell-sick-bg:        rgba(225,29,72,0.12);
+      --cell-sick-bd:        rgba(253,164,175,0.3);
+      --cell-conference-bg:  rgba(2,132,199,0.12);
+      --cell-conference-bd:  rgba(147,197,253,0.3);
+      --cell-custom-bg:      rgba(13,148,136,0.12);
+      --cell-custom-bd:      rgba(94,234,212,0.3);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 15px; -webkit-font-smoothing: antialiased; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.55; min-height: 100vh; transition: background .25s, color .2s; }
+
+    /* ── HEADER ──────────────────────────────────────────────────── */
+    .app-header { background: var(--header-bg); height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; position: sticky; top: 0; z-index: 200; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .header-accent-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg,var(--accent) 0%,transparent 60%); opacity: 0.7; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-icon { width: 32px; height: 32px; background: var(--accent); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(79,107,237,0.4); overflow: hidden; }
+    .brand-icon img { width: 100%; height: 100%; object-fit: contain; }
+    .brand-name { font-size: 14px; font-weight: 700; color: #fff; letter-spacing: -0.01em; line-height: 1.2; }
+    .brand-sub  { font-size: 11px; color: rgba(255,255,255,0.38); font-weight: 400; }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .header-divider { width: 1px; height: 22px; background: rgba(255,255,255,0.12); }
+    .header-tag { font-size: 11px; font-family: var(--mono); background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.11); color: rgba(255,255,255,0.5); padding: 4px 10px; border-radius: 999px; letter-spacing: 0.03em; }
+    .header-pro-pill { font-size: 9.5px; font-family: var(--mono); font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; background: var(--pro-grad); color: #fff; padding: 4px 9px; border-radius: 999px; display: none; }
+    .header-pro-pill.visible { display: inline-block; }
+
+    /* ── TOGGLE SWITCHES ─────────────────────────────────────────── */
+    .sw-group { display: flex; align-items: center; gap: 7px; }
+    .sw-lbl { font-size: 10.5px; font-family: var(--mono); color: rgba(255,255,255,0.35); letter-spacing: 0.04em; user-select: none; white-space: nowrap; transition: color .2s; }
+    .sw-lbl.on { color: rgba(255,255,255,0.82); }
+    .sw-input { display: none; }
+    .sw-track { width: 36px; height: 20px; position: relative; background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.18); border-radius: 999px; cursor: pointer; transition: background .2s, border-color .2s; flex-shrink: 0; display: block; }
+    .sw-track::after { content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,0.45); transition: transform .2s, background .2s; }
+    .sw-input:checked + .sw-track { background: var(--accent); border-color: var(--accent); }
+    .sw-input:checked + .sw-track::after { transform: translateX(16px); background: #fff; }
+    .sw-pro .sw-input:checked + .sw-track { background: linear-gradient(135deg,#F59E0B 0%,#EF4444 100%); border-color: #F59E0B; }
+
+    /* ── LAYOUT ──────────────────────────────────────────────────── */
+    .app-body { padding: 24px 28px 56px; max-width: 1200px; margin: 0 auto; }
+    .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+    @media (max-width: 820px) { .config-grid { grid-template-columns: 1fr; } }
+
+    /* ── CARDS ───────────────────────────────────────────────────── */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; }
+    .card-header { padding: 14px 20px; border-bottom: 1px solid var(--border); background: var(--surface-2); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .card-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); }
+    .card-body { padding: 20px; }
+
+    /* ── PRO BADGE + GATE ────────────────────────────────────────── */
+    .pro-badge { display: inline-flex; align-items: center; font-size: 9px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; background: var(--pro-grad); color: #fff; padding: 2px 6px; border-radius: 3px; vertical-align: middle; margin-left: 6px; font-family: var(--mono); user-select: none; flex-shrink: 0; }
+    .pro-gate { position: relative; transition: opacity .2s; }
+    body.tier-free .pro-gate { opacity: 0.46; pointer-events: none; user-select: none; }
+    .gate-notice { display: none; align-items: center; gap: 8px; padding: 8px 12px; margin-bottom: 10px; background: linear-gradient(135deg,rgba(245,158,11,0.09) 0%,rgba(239,68,68,0.07) 100%); border: 1.5px solid rgba(245,158,11,0.28); border-radius: var(--radius); font-size: 12px; font-weight: 600; color: #92400E; pointer-events: none; }
+    [data-theme="dark"] .gate-notice { color: #FCD34D; border-color: rgba(245,158,11,0.22); }
+    body.tier-free .gate-notice { display: flex; }
+    .quarterly-gate-msg { display: none; font-size: 11.5px; font-weight: 600; color: #C87A10; font-family: var(--mono); margin-top: 6px; }
+    body.tier-free .quarterly-gate-msg { display: block; }
+
+    /* ── FIELDS ──────────────────────────────────────────────────── */
+    .field { margin-bottom: 18px; }
+    .field:last-child { margin-bottom: 0; }
+    .field-label { display: flex; align-items: center; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 7px; }
+    .field-hint { font-size: 11px; color: var(--text-subtle); margin-top: 5px; line-height: 1.4; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field-row .field { margin-bottom: 0; }
+    .field-error-msg { display: none; font-size: 12px; color: var(--danger); font-weight: 500; margin-top: 5px; }
+    .field-error-msg.visible { display: block; }
+
+    input[type="number"], input[type="text"], select {
+      font-family: var(--font); font-size: 14px; font-weight: 500; color: var(--text);
+      background: var(--surface); border: 1.5px solid var(--border-strong);
+      border-radius: var(--radius); padding: 9px 12px; width: 100%; outline: none;
+      transition: border-color .15s, box-shadow .15s; appearance: auto;
+    }
+    [data-theme="dark"] input[type="number"],[data-theme="dark"] input[type="text"],[data-theme="dark"] select { background: var(--surface-2); }
+    input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+    input.field-error { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(220,38,38,0.12); }
+    input:disabled, select:disabled, textarea:disabled { opacity: 0.5; cursor: not-allowed; }
+    textarea { font-family: var(--mono); font-size: 12px; line-height: 1.7; color: var(--text); background: var(--surface); border: 1.5px solid var(--border-strong); border-radius: var(--radius); padding: 10px 12px; width: 100%; min-height: 130px; resize: vertical; outline: none; transition: border-color .15s, box-shadow .15s; }
+    [data-theme="dark"] textarea { background: var(--surface-2); }
+    textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+
+    /* ── MODE TOGGLE ─────────────────────────────────────────────── */
+    .mode-toggle { display: inline-flex; background: var(--surface-3); border: 1.5px solid var(--border-strong); border-radius: var(--radius); padding: 3px; gap: 2px; margin-bottom: 8px; }
+    .mode-btn { font-family: var(--font); font-size: 13px; font-weight: 600; padding: 7px 18px; border: none; border-radius: var(--radius-sm); cursor: pointer; background: transparent; color: var(--text-muted); transition: all .15s; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+    .mode-btn.active { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(79,107,237,.28); }
+    body.tier-free #modeQuarterly { cursor: not-allowed; opacity: 0.5; }
+
+    /* ── TOGGLE ITEMS ────────────────────────────────────────────── */
+    .toggle-group { display: flex; flex-direction: column; gap: 8px; }
+    .toggle-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 13px; border: 1.5px solid var(--border); border-radius: var(--radius); background: var(--surface-2); cursor: pointer; transition: border-color .14s, background .14s; user-select: none; }
+    .toggle-item:hover { border-color: var(--accent); background: var(--accent-light); }
+    .toggle-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); flex-shrink: 0; margin-top: 2px; cursor: pointer; }
+    .toggle-label { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.35; }
+    .toggle-sub   { font-size: 11.5px; color: var(--text-subtle); margin-top: 2px; }
+    .toggle-select-wrap { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+    .toggle-select-wrap select { width: auto; }
+
+    /* ── DAY CHIPS (allowed) ─────────────────────────────────────── */
+    .day-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .day-chip-label { cursor: pointer; }
+    .day-chip-label input[type="checkbox"] { display: none; }
+    .day-chip-inner { display: inline-flex; align-items: center; justify-content: center; width: 46px; height: 38px; border-radius: var(--radius-sm); border: 1.5px solid var(--border-strong); font-size: 12px; font-weight: 700; color: var(--text-muted); background: var(--surface-2); transition: all .14s; user-select: none; letter-spacing: .02em; }
+    .day-chip-label input:checked + .day-chip-inner { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(79,107,237,.3); }
+    .day-chip-label:hover .day-chip-inner { border-color: var(--accent); color: var(--accent); }
+
+    /* ── ANCHOR CHIPS (amber) ────────────────────────────────────── */
+    .anchor-chip-label { cursor: pointer; }
+    .anchor-chip-label input[type="checkbox"] { display: none; }
+    .anchor-chip-inner { display: inline-flex; align-items: center; justify-content: center; width: 46px; height: 38px; border-radius: var(--radius-sm); border: 1.5px solid var(--border-strong); font-size: 12px; font-weight: 700; color: var(--text-muted); background: var(--surface-2); transition: all .14s; user-select: none; letter-spacing: .02em; }
+    .anchor-chip-label input:checked + .anchor-chip-inner { background: #F59E0B; border-color: #F59E0B; color: #fff; box-shadow: 0 2px 8px rgba(245,158,11,.35); }
+    .anchor-chip-label:hover .anchor-chip-inner { border-color: #F59E0B; color: #F59E0B; }
+
+    /* ── BUTTONS ─────────────────────────────────────────────────── */
+    .btn { font-family: var(--font); font-size: 13.5px; font-weight: 600; padding: 10px 20px; border-radius: var(--radius); border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; transition: all .15s; line-height: 1; }
+    .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(79,107,237,.32); }
+    .btn-primary:hover { background: var(--accent-hover); box-shadow: 0 4px 14px rgba(79,107,237,.42); transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-secondary { background: var(--surface); color: var(--text); border: 1.5px solid var(--border-strong); }
+    .btn-secondary:hover { background: var(--surface-2); border-color: var(--accent); color: var(--accent); }
+    .btn:disabled { opacity: .4; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; align-items: center; }
+
+    /* ── PROVINCE FIELD ──────────────────────────────────────────── */
+    .province-field-wrap { padding: 14px 16px; background: linear-gradient(135deg,rgba(245,158,11,0.06) 0%,rgba(239,68,68,0.06) 100%); border: 1.5px solid rgba(245,158,11,0.25); border-radius: var(--radius); }
+    .province-field-wrap .field-label { color: #92400E; margin-bottom: 7px; }
+    [data-theme="dark"] .province-field-wrap .field-label { color: #FCD34D; }
+    .province-field-wrap select { border-color: rgba(245,158,11,0.4); }
+    .province-field-wrap select:focus { border-color: #F59E0B; box-shadow: 0 0 0 3px rgba(245,158,11,0.15); }
+    .province-hint { font-size: 11px; color: #B45309; margin-top: 6px; line-height: 1.4; }
+    [data-theme="dark"] .province-hint { color: #D97706; }
+
+    /* ── HOLIDAY LIST ────────────────────────────────────────────── */
+    .holiday-list { font-family: var(--mono); font-size: 11.5px; line-height: 1.9; color: var(--text-muted); background: var(--surface-2); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 10px 13px; min-height: 120px; max-height: 210px; overflow-y: auto; }
+    .holiday-list div { border-bottom: 1px solid var(--border); padding: 2px 0; }
+    .holiday-list div:last-child { border-bottom: none; }
+
+    /* ── ACTUAL SUMMARY STRIP ────────────────────────────────────── */
+    .actual-summary-strip {
+      display: none; align-items: center; gap: 16px;
+      padding: 10px 16px; margin-bottom: 16px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); box-shadow: var(--shadow-xs);
+      font-family: var(--mono); font-size: 12px; font-weight: 600;
+    }
+    .actual-summary-strip.visible { display: flex; }
+    .as-label { color: var(--text-muted); font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; margin-right: 4px; }
+    .as-attended { color: var(--success); }
+    .as-missed   { color: var(--danger); }
+    .as-pending  { color: var(--text-subtle); }
+    .as-sep { color: var(--border-strong); }
+
+    /* ── KPI STRIP ───────────────────────────────────────────────── */
+    .kpi-strip { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 18px; }
+    @media (max-width: 820px) { .kpi-strip { grid-template-columns: repeat(2,1fr); } }
+    .kpi-box { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: var(--radius-lg); padding: 16px 18px 14px; box-shadow: var(--shadow-xs); }
+    .kpi-box.kpi-ok   { border-left-color: var(--success); }
+    .kpi-box.kpi-warn { border-left-color: var(--warn); }
+    .kpi-label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--text-muted); margin-bottom: 8px; }
+    .kpi-value { font-size: 30px; font-weight: 800; color: var(--text); line-height: 1; letter-spacing: -.02em; font-family: var(--mono); }
+    .kpi-sub   { font-size: 11px; color: var(--text-subtle); margin-top: 5px; }
+
+    /* ── STATUS BADGE ────────────────────────────────────────────── */
+    .status-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 4px 11px; border-radius: 999px; }
+    .status-badge.ok   { background: var(--success-bg); color: var(--success); }
+    .status-badge.warn { background: var(--warn-bg);    color: var(--warn); }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+    .results-title { font-size: 15px; font-weight: 700; color: var(--text); }
+
+    /* ── LEGEND ──────────────────────────────────────────────────── */
+    .grid-legend { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 10px 0 14px; border-bottom: 1.5px solid var(--border); margin-bottom: 14px; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: var(--text-muted); }
+    .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+    .ld-office  { background: var(--accent); }
+    .ld-wfh     { background: var(--success); }
+    .ld-holiday { background: #F59E0B; }
+    .ld-pto     { background: #7C3AED; }
+    .legend-note { font-size: 10.5px; color: var(--text-subtle); margin-left: auto; font-family: var(--mono); }
+    .legend-edited { display: inline-flex; align-items: center; gap: 4px; }
+    .legend-edited-dot { font-size: 10px; color: #F59E0B; }
+
+    /* ── WEEK GRID ───────────────────────────────────────────────── */
+    .week-grid { display: flex; flex-direction: column; gap: 7px; }
+    .grid-week-header { display: grid; grid-template-columns: 72px repeat(5,1fr); gap: 6px; padding-bottom: 8px; }
+    .grid-hdr-week { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-subtle); }
+    .grid-hdr-day  { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); text-align: center; }
+    .week-row { display: grid; grid-template-columns: 72px repeat(5,1fr); gap: 6px; align-items: start; }
+    .week-label-cell { display: flex; flex-direction: column; justify-content: flex-start; gap: 3px; padding-top: 8px; }
+    .week-label-date { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--text-muted); white-space: nowrap; }
+    .week-office-count { font-family: var(--mono); font-size: 10px; color: var(--accent); font-weight: 500; }
+    .month-sep { padding: 12px 0 4px; border-top: 1.5px solid var(--border); margin-top: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--text-muted); }
+
+    /* ── DAY CELLS ───────────────────────────────────────────────── */
+    .day-cell {
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      padding: 8px;
+      min-height: 72px;
+      display: flex; flex-direction: column; gap: 5px;
+      background: var(--surface-2);
+      position: relative;
+      transition: border-color .12s, background .12s, opacity .12s;
+    }
+    .day-cell--interactive { cursor: pointer; }
+    .day-cell--interactive:hover { border-color: var(--border-strong); filter: brightness(0.97); }
+    [data-theme="dark"] .day-cell--interactive:hover { filter: brightness(1.07); }
+
+    .day-cell--office  { background: var(--cell-office-bg);  border-color: var(--cell-office-bd); }
+    .day-cell--wfh     { background: var(--cell-wfh-bg);     border-color: var(--cell-wfh-bd); }
+    .day-cell--holiday { background: var(--cell-holiday-bg); border-color: var(--cell-holiday-bd); }
+    .day-cell--pto     { background: var(--cell-pto-bg);     border-color: var(--cell-pto-bd); }
+    .day-cell--empty   { background: transparent; border-color: transparent; min-height: 0; pointer-events: none; }
+
+    /* Edited indicator — amber corner dot */
+    .day-cell--manual::before {
+      content: ''; position: absolute; top: 5px; right: 5px;
+      width: 6px; height: 6px; border-radius: 50%; background: #F59E0B;
+    }
+
+    .cell-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 4px; }
+    .day-num { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--text-muted); line-height: 1; }
+
+    /* Type badge */
+    .type-badge { display: inline-flex; font-size: 9.5px; font-weight: 700; font-family: var(--mono); text-transform: uppercase; letter-spacing: .04em; padding: 2px 5px; border-radius: var(--radius-xs); flex-shrink: 0; }
+    .tb-office  { background: var(--accent); color: #fff; }
+    .tb-wfh     { background: var(--success); color: #fff; }
+    .tb-holiday { background: #F59E0B; color: #fff; }
+    .tb-pto     { background: #7C3AED; color: #fff; }
+
+    /* Cell bottom row */
+    .cell-bottom { display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-top: auto; }
+
+    /* Actual tracking button */
+    .actual-btn {
+      font-size: 9.5px; font-weight: 700; font-family: var(--mono);
+      padding: 2px 6px; border-radius: var(--radius-xs);
+      border: 1.5px solid currentColor;
+      background: transparent; cursor: pointer;
+      text-transform: uppercase; letter-spacing: .04em;
+      transition: all .12s; line-height: 1.4; white-space: nowrap;
+    }
+    .actual-btn:hover { opacity: 0.75; }
+    .ab-pending  { color: var(--text-subtle); }
+    .ab-upcoming { color: var(--text-subtle); border-style: dashed; }
+    .ab-attended { color: var(--success); }
+    .ab-missed   { color: var(--danger); }
+
+    /* Note button */
+    .note-btn { background: none; border: none; cursor: pointer; font-size: 13px; color: var(--text-subtle); padding: 0 1px; transition: color .14s; line-height: 1; flex-shrink: 0; }
+    .note-btn:hover, .note-btn.has-note { color: var(--accent); }
+    [data-theme="dark"] .note-btn.has-note { color: #F59E0B; }
+    .note-btn.has-note { color: #F59E0B; }
+
+    /* Note area */
+    .note-area { display: none; margin-top: 5px; }
+    .note-area.open { display: block; }
+    .note-area textarea {
+      width: 100%; font-family: var(--mono); font-size: 10px; line-height: 1.5;
+      color: var(--text); background: var(--surface);
+      border: 1.5px solid var(--border-strong); border-radius: var(--radius-xs);
+      padding: 4px 6px; resize: none; min-height: 38px; outline: none;
+    }
+    [data-theme="dark"] .note-area textarea { background: var(--surface-3); }
+    .note-area textarea:focus { border-color: var(--accent); }
+
+    /* ── RANGE PICKER ────────────────────────────────────────────── */
+    .range-picker {
+      background: var(--surface-2); border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 14px; margin-bottom: 12px;
+    }
+    .range-picker .rp-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); margin-bottom: 10px; }
+    .rp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+    .rp-grid .field { margin-bottom: 0; }
+    .rp-grid input[type="date"] { font-size: 13px; padding: 7px 10px; }
+    .rp-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
+    .rp-row .field { margin-bottom: 0; flex: 1; min-width: 120px; }
+    .btn-rp-add { font-size: 13px; padding: 8px 16px; white-space: nowrap; }
+
+    /* ── APPLY BUTTON ────────────────────────────────────────────── */
+    .apply-btn { width: 100%; margin-top: 8px; font-size: 13px; padding: 9px 16px; background: var(--surface-3); color: var(--text); border: 1.5px solid var(--border-strong); border-radius: var(--radius); cursor: pointer; font-family: var(--font); font-weight: 600; transition: all .15s; }
+    .apply-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+    .apply-btn.applied { border-color: var(--success); color: var(--success); background: var(--success-bg); }
+
+    /* ── WFH ICS TOGGLE ─────────────────────────────────────────── */
+    .ics-options { margin-top: 10px; }
+    .ics-tip { font-size: 11px; color: var(--text-subtle); margin-top: 8px; line-height: 1.5; padding: 8px 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); display: none; }
+    .ics-tip.visible { display: block; }
+
+    /* ── DAY CELL — NEW TYPES ────────────────────────────────────── */
+    .day-cell--vacation  { background: var(--cell-vacation-bg);   border-color: var(--cell-vacation-bd); }
+    .day-cell--sick      { background: var(--cell-sick-bg);       border-color: var(--cell-sick-bd); }
+    .day-cell--conference{ background: var(--cell-conference-bg); border-color: var(--cell-conference-bd); }
+    .day-cell--custom    { background: var(--cell-custom-bg);     border-color: var(--cell-custom-bd); }
+
+    /* ── TYPE BADGES — NEW ───────────────────────────────────────── */
+    .tb-vacation   { background: #D97706; color: #fff; }
+    .tb-sick       { background: #E11D48; color: #fff; }
+    .tb-conference { background: #0284C7; color: #fff; }
+    .tb-custom     { background: #0D9488; color: #fff; }
+
+    /* ── LEGEND DOTS — NEW ───────────────────────────────────────── */
+    .ld-vacation   { background: #D97706; }
+    .ld-sick       { background: #E11D48; }
+    .ld-conference { background: #0284C7; }
+    .ld-custom     { background: #0D9488; }
+
+
+    /* ── SAVE BUTTON ─────────────────────────────────────────────── */
+    .header-save-btn {
+      font-family:var(--font); font-size:12px; font-weight:700;
+      padding:6px 14px; border:1.5px solid rgba(255,255,255,0.22);
+      border-radius:var(--radius-sm); background:transparent;
+      color:rgba(255,255,255,0.7); cursor:pointer; transition:all .15s;
+      letter-spacing:.02em; white-space:nowrap;
+    }
+    .header-save-btn:hover { border-color:rgba(255,255,255,0.55); color:#fff; }
+    .header-save-btn.unsaved { border-color:#F59E0B; color:#FCD34D; animation:pulse-amber 2s infinite; }
+    .header-save-btn.saved   { border-color:#059669; color:#6EE7B7; }
+    @keyframes pulse-amber { 0%,100%{opacity:1} 50%{opacity:.65} }
+    .header-save-status { font-size:10px; font-family:var(--mono); color:rgba(255,255,255,0.3); white-space:nowrap; letter-spacing:.02em; }
+    .header-save-status.unsaved { color:#F59E0B; }
+    .header-save-status.saved   { color:rgba(255,255,255,0.45); }
+
+    /* ── HOLIDAY INTERACTIVE LIST ────────────────────────────────── */
+    .hol-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:7px; }
+    .hol-restore-link { font-size:11px; color:var(--accent); cursor:pointer; text-decoration:underline; font-weight:600; display:none; }
+    .hol-restore-link.visible { display:inline; }
+    .hol-row { display:flex; align-items:center; gap:8px; padding:3px 0; border-bottom:1px solid var(--border); }
+    .hol-row:last-child { border-bottom:none; }
+    .hol-date { font-family:var(--mono); font-size:11px; color:var(--text-subtle); flex-shrink:0; min-width:86px; }
+    .hol-name { font-size:12px; color:var(--text-muted); flex:1; line-height:1.3; }
+    .hol-name.hol-custom { color:var(--accent); font-weight:600; }
+    .hol-remove { background:none; border:none; cursor:pointer; font-size:11px; color:var(--text-subtle); padding:2px 4px; border-radius:3px; transition:color .12s,background .12s; flex-shrink:0; line-height:1; }
+    .hol-remove:hover { color:var(--danger); background:var(--danger-bg); }
+
+    /* ── CUSTOM HOLIDAY ADD ──────────────────────────────────────── */
+    .custom-hol-add { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; align-items:flex-end; padding-top:8px; border-top:1px solid var(--border); }
+    .custom-hol-add input[type="date"] { font-size:12.5px; padding:6px 9px; flex:0 0 130px; }
+    .custom-hol-add input[type="text"] { font-size:12.5px; padding:6px 9px; flex:1; min-width:120px; }
+    .btn-hol-add { font-size:12px; padding:7px 12px; white-space:nowrap; flex-shrink:0; }
+
+    /* ── PERIOD MISMATCH BANNER ──────────────────────────────────── */
+    .period-banner { display:none; align-items:center; gap:10px; padding:10px 16px; margin-bottom:16px; background:var(--warn-bg); border:1.5px solid rgba(200,122,16,0.3); border-radius:var(--radius); font-size:12.5px; color:var(--warn); font-weight:600; }
+    .period-banner.visible { display:flex; }
+    .period-banner button { background:none; border:1.5px solid currentColor; border-radius:var(--radius-xs); padding:3px 10px; cursor:pointer; font-size:11.5px; font-weight:700; color:inherit; font-family:var(--font); margin-left:auto; }
+
+    /* ── NAV ARROWS (Feature 2) ─────────────────────────────────── */
+    .nav-btn { background:none; border:1.5px solid var(--border-strong); border-radius:var(--radius-xs); cursor:pointer; font-size:18px; font-weight:700; color:var(--text-muted); padding:1px 10px; line-height:1; transition:all .14s; }
+    .nav-btn:hover { border-color:var(--accent); color:var(--accent); }
+    .nav-btn:disabled { opacity:.3; cursor:not-allowed; }
+
+    /* ── YEAR-AT-A-GLANCE (Feature 3) ───────────────────────────── */
+    .yag-strip { padding:10px 20px 12px; border-bottom:1px solid var(--border); }
+    .yag-grid { display:grid; grid-template-columns:repeat(12,1fr); gap:4px; }
+    .yag-grid-q { grid-template-columns:repeat(4,1fr); }
+    .yag-cell { text-align:center; padding:5px 2px; border-radius:var(--radius-xs); font-size:10px; font-weight:700; font-family:var(--mono); cursor:pointer; transition:all .12s; border:1.5px solid transparent; color:var(--text-subtle); background:var(--surface-3); white-space:nowrap; }
+    .yag-cell:hover { border-color:var(--accent); color:var(--accent); }
+    .yag-met     { background:var(--success-bg); color:var(--success); }
+    .yag-warn    { background:var(--warn-bg); color:var(--warn); }
+    .yag-current { border-color:var(--accent) !important; color:var(--accent); box-shadow:0 0 0 2px var(--accent-light); }
+
+    /* ── KPI AREA (5-column when YTD present) ───────────────────── */
+    .kpi-area { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:18px; }
+    .kpi-area.has-ytd { grid-template-columns:repeat(5,1fr); }
+    @media (max-width:820px){ .kpi-area { grid-template-columns:repeat(2,1fr); } .kpi-area.has-ytd { grid-template-columns:repeat(3,1fr); } }
+
+    /* ── PROFILE BADGE STRIP ────────────────────────────────────── */
+    .profile-badge-strip {
+      display:none; align-items:center; justify-content:space-between;
+      padding:10px 16px; margin-bottom:12px;
+      background:var(--surface); border:1px solid var(--border);
+      border-left:3px solid var(--accent);
+      border-radius:var(--radius-lg); box-shadow:var(--shadow-xs);
+      gap:12px; flex-wrap:wrap;
+    }
+    .profile-badge-strip.pbs-visible { display:flex; }
+    .profile-badge-strip.pbs-modified { border-left-color:var(--warn); }
+    .pbs-left { display:flex; align-items:center; gap:8px; flex-wrap:wrap; min-width:0; }
+    .pbs-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--text-muted); flex-shrink:0; }
+    .pbs-name { font-size:14px; font-weight:800; color:var(--text); letter-spacing:-.01em; }
+    .pbs-drift { font-size:10.5px; font-weight:700; color:var(--warn); font-family:var(--mono); display:none; }
+    .pbs-drift.visible { display:inline; }
+    .pbs-settings { font-size:11px; color:var(--text-subtle); font-family:var(--mono); }
+    .pbs-right { display:flex; align-items:center; gap:6px; flex-shrink:0; }
+    .pbs-btn { font-family:var(--font); font-size:11.5px; font-weight:600; padding:4px 10px; border:1.5px solid var(--border-strong); border-radius:var(--radius-xs); background:transparent; color:var(--text-muted); cursor:pointer; transition:all .14s; white-space:nowrap; }
+    .pbs-btn:hover { border-color:var(--accent); color:var(--accent); }
+    .pbs-btn-update { border-color:var(--warn); color:var(--warn); display:none; }
+    .pbs-btn-update.visible { display:inline-flex; }
+    .pbs-btn-switch { border-color:var(--accent); color:var(--accent); }
+    .pbs-divider { font-size:10px; color:var(--border-strong); }
+
+
+    .profile-row { display:flex; gap:6px; align-items:center; }
+    .profile-row select { flex:1; font-size:13px; }
+    .btn-profile { font-size:11.5px; padding:6px 10px; flex-shrink:0; }
+    .btn-profile-del { color:var(--danger); }
+
+
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:999; padding:20px; opacity:0; pointer-events:none; transition:opacity .2s; }
+    .modal-overlay.open { opacity:1; pointer-events:all; }
+    .modal { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:0 24px 64px rgba(0,0,0,0.35); width:100%; max-width:530px; max-height:88vh; overflow-y:auto; }
+    .modal-header { display:flex; align-items:center; justify-content:space-between; padding:18px 22px 16px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--surface); z-index:1; }
+    .modal-title { font-size:15px; font-weight:700; color:var(--text); letter-spacing:-.01em; }
+    .modal-close { background:none; border:none; cursor:pointer; font-size:15px; color:var(--text-muted); padding:3px 8px; border-radius:var(--radius-xs); transition:background .12s; }
+    .modal-close:hover { background:var(--surface-3); color:var(--text); }
+    .modal-body { padding:22px; display:flex; flex-direction:column; gap:20px; }
+    .modal-footer { padding:14px 22px; border-top:1px solid var(--border); display:flex; gap:10px; justify-content:flex-end; }
+    .backup-section { display:flex; flex-direction:column; gap:10px; }
+    .backup-section-hdr { display:flex; align-items:center; gap:8px; }
+    .backup-section-title { font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--text-muted); }
+    .bsec-badge { font-size:9px; font-weight:800; font-family:var(--mono); padding:2px 6px; border-radius:3px; text-transform:uppercase; letter-spacing:.06em; }
+    .badge-enc  { background:#059669; color:#fff; }
+    .badge-plain{ background:#64748B; color:#fff; }
+    .backup-section-desc { font-size:12px; color:var(--text-subtle); line-height:1.55; }
+    .backup-divider { height:1px; background:var(--border); }
+
+    /* ── PASSPHRASE STRENGTH ─────────────────────────────────────── */
+    .strength-row { display:flex; align-items:center; gap:8px; margin-top:6px; }
+    .strength-bar { flex:1; height:4px; background:var(--border); border-radius:2px; overflow:hidden; }
+    .strength-fill { height:100%; border-radius:2px; transition:width .3s, background .3s; width:0; }
+    .strength-lbl { font-size:10.5px; font-family:var(--mono); font-weight:700; min-width:44px; text-align:right; }
+
+    /* ── DROPZONE ────────────────────────────────────────────────── */
+    .import-dropzone { border:2px dashed var(--border-strong); border-radius:var(--radius); padding:22px; text-align:center; cursor:pointer; transition:border-color .15s, background .15s; }
+    .import-dropzone:hover, .import-dropzone.drag-over { border-color:var(--accent); background:var(--accent-light); }
+    .dz-icon { font-size:26px; margin-bottom:6px; }
+    .dz-label { font-size:13px; font-weight:600; color:var(--text-muted); }
+    .dz-label a { color:var(--accent); cursor:pointer; }
+    .dz-hint { font-size:11px; color:var(--text-subtle); margin-top:4px; font-family:var(--mono); }
+    .dz-loaded { font-size:12px; font-weight:600; margin-top:7px; color:var(--success); }
+    .dz-loaded.err { color:var(--danger); }
+
+    /* ── IMPORT PREVIEW ──────────────────────────────────────────── */
+    .import-preview { background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius); padding:14px; }
+    .preview-row { display:flex; justify-content:space-between; align-items:center; padding:5px 0; font-size:13px; }
+    .preview-row:not(:last-child) { border-bottom:1px solid var(--border); }
+    .preview-key { color:var(--text-muted); font-weight:500; }
+    .preview-val { color:var(--text); font-weight:700; font-family:var(--mono); }
+    .preview-warn { font-size:12px; color:var(--warn); font-weight:600; margin-top:10px; padding:9px 11px; background:var(--warn-bg); border-radius:var(--radius-sm); line-height:1.5; }
+    .preview-plain-note { font-size:11.5px; color:var(--text-subtle); margin-top:8px; font-style:italic; }
+
+    /* ── HEADER BACKUP BUTTON ────────────────────────────────────── */
+    .header-backup-btn { font-family:var(--font); font-size:12px; font-weight:700; padding:6px 14px; border:1.5px solid rgba(255,255,255,0.22); border-radius:var(--radius-sm); background:transparent; color:rgba(255,255,255,0.7); cursor:pointer; transition:all .15s; letter-spacing:.02em; white-space:nowrap; }
+    .header-backup-btn:hover { border-color:rgba(255,255,255,0.55); color:#fff; }
+
+    .empty-state { text-align: center; padding: 52px 24px; }
+    .empty-icon  { font-size: 36px; margin-bottom: 14px; opacity: .5; }
+    .empty-title { font-size: 15px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; }
+    .empty-sub   { font-size: 13px; color: var(--text-subtle); }
+
+    code { font-family: var(--mono); font-size: 11px; background: var(--surface-3); padding: 1px 5px; border-radius: var(--radius-xs); color: var(--text-muted); }
+
+    /* ── FOOTER ──────────────────────────────────────────────────── */
+    .app-footer { text-align: center; padding: 20px 28px 32px; font-size: 11px; color: var(--text-subtle); font-family: var(--mono); letter-spacing: 0.02em; }
+
+    /* ── RESPONSIVE ──────────────────────────────────────────────── */
+    @media (max-width: 680px) {
+      .week-row, .grid-week-header { grid-template-columns: 52px repeat(5,minmax(60px,1fr)); overflow-x: auto; }
+      .app-body { padding: 16px 16px 40px; }
+    }
+
+    /* ── PRINT ───────────────────────────────────────────────────── */
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #fff; font-size: 12px; }
+      .app-body { padding: 0; max-width: 100%; }
+      .print-header { display: block !important; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid #000; }
+      .kpi-strip { gap: 8px; margin-bottom: 14px; }
+      .kpi-box { box-shadow: none; border: 1px solid #ccc; border-left: 3px solid #000; border-radius: 6px; }
+      .kpi-value { font-size: 22px; }
+      .card { box-shadow: none; border: 1px solid #ccc; border-radius: 6px; }
+      .card-header { background: #f5f5f5; }
+      .app-footer { display: none; }
+      .day-cell { border: 1px solid #ddd; }
+      .day-cell--office  { background: #dbeafe; }
+      .day-cell--wfh     { background: #d1fae5; }
+      .day-cell--holiday { background: #fef9c3; }
+      .day-cell--pto     { background: #ede9fe; }
+      .note-area { display: block !important; }
+    }
+  </style>
+</head>
+<body class="tier-free">
+
+<!-- ═══ HEADER ═══════════════════════════════════════════════════ -->
+<header class="app-header no-print" style="position:relative;">
+  <div class="brand">
+    <div class="brand-icon" id="brandIcon">🏢</div>
+    <div>
+      <div class="brand-name" id="brandName">Hybrid Office Planner</div>
+      <div class="brand-sub" id="brandSub">Ontario · ESA Compliance</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="header-save-status" id="headerSaveStatus"></span>
+    <button class="header-save-btn" id="headerSaveBtn">Save</button>
+    <button class="header-backup-btn" id="headerBackupBtn" title="Backup &amp; Restore">Backup</button>
+    <div class="header-divider"></div>
+    <span class="header-tag" id="headerTag">Company Edition</span>
+    <span class="header-pro-pill" id="headerProPill">Pro</span>
+    <div class="header-divider"></div>
+    <div class="sw-group" title="Toggle light / dark theme">
+      <span class="sw-lbl on" id="lblLight">☀</span>
+      <label><input class="sw-input" type="checkbox" id="themeToggle" /><span class="sw-track"></span></label>
+      <span class="sw-lbl" id="lblDark">☾</span>
+    </div>
+    <div class="header-divider"></div>
+    <div class="sw-group sw-pro" title="Free / Pro tier">
+      <span class="sw-lbl on" id="lblFree">Free</span>
+      <label><input class="sw-input" type="checkbox" id="tierToggle" /><span class="sw-track"></span></label>
+      <span class="sw-lbl" id="lblPro">Pro</span>
+    </div>
+  </div>
+  <div class="header-accent-bar"></div>
+</header>
+
+<div class="print-header" style="display:none;padding:16px 0 0;">
+  <strong style="font-size:18px;" id="printTitle">Hybrid Office Planner</strong>
+  <span style="font-size:13px;color:#555;margin-left:12px;" id="printSub">Ontario · ESA Compliance</span>
+</div>
+
+<main class="app-body">
+  <!-- CONFIG GRID -->
+  <div class="config-grid no-print">
+
+    <!-- PLANNING SETTINGS ─────────────────────────────────────── -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Planning Settings</span></div>
+      <div class="card-body">
+
+        <div class="field-label" style="margin-bottom:6px;">Planning Mode</div>
+        <div class="mode-toggle">
+          <button class="mode-btn active" id="modeMonthly">Monthly</button>
+          <button class="mode-btn" id="modeQuarterly">Quarterly <span class="pro-badge">PRO</span></button>
+        </div>
+        <div class="quarterly-gate-msg" style="margin-bottom:14px;">🔒 Quarterly planning is a Pro feature.</div>
+
+        <div id="monthlyPickers">
+          <div class="field-row field">
+            <div class="field">
+              <label class="field-label" for="year">Year</label>
+              <input id="year" type="number" min="2020" max="2100" />
+              <div class="field-error-msg" id="yearError">Enter a year between 2020 and 2100.</div>
+            </div>
+            <div class="field">
+              <label class="field-label" for="month">Month</label>
+              <select id="month"></select>
+            </div>
+          </div>
+        </div>
+
+        <div id="quarterlyPickers" style="display:none">
+          <div class="field-row field">
+            <div class="field">
+              <label class="field-label" for="yearQ">Year</label>
+              <input id="yearQ" type="number" min="2020" max="2100" />
+              <div class="field-error-msg" id="yearQError">Enter a year between 2020 and 2100.</div>
+            </div>
+            <div class="field">
+              <label class="field-label" for="quarter">Quarter</label>
+              <select id="quarter">
+                <option value="0">Q1 — Jan · Feb · Mar</option>
+                <option value="1">Q2 — Apr · May · Jun</option>
+                <option value="2">Q3 — Jul · Aug · Sep</option>
+                <option value="3">Q4 — Oct · Nov · Dec</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-row field">
+          <div class="field">
+            <label class="field-label" for="pct">Required %</label>
+            <input id="pct" type="number" min="1" max="100" step="1" value="50" />
+          </div>
+          <div class="field">
+            <label class="field-label" for="pattern">Weekly Pattern</label>
+            <input id="pattern" type="text" value="3,2" />
+            <div class="field-hint">e.g. 3,2 = 3 days wk1, 2 days wk2</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-label">Options</div>
+          <div class="toggle-group">
+            <label class="toggle-item">
+              <input id="observed" type="checkbox" checked />
+              <div>
+                <div class="toggle-label">Observed Monday rule</div>
+                <div class="toggle-sub">Exclude Mon when a holiday falls on weekend</div>
+              </div>
+            </label>
+            <div class="toggle-item" style="cursor:default;flex-direction:column;align-items:flex-start;">
+              <div class="toggle-select-wrap">
+                <label class="field-label" for="basis" style="margin-bottom:6px;">Count Basis</label>
+                <select id="basis">
+                  <option value="business">Business days only (Mon–Fri)</option>
+                  <option value="all">All calendar days</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-label">Allowed Office Days</div>
+          <div class="day-chips" id="dayChips"></div>
+          <div class="field-hint" style="margin-top:8px;">Which days of the week can be scheduled as office days.</div>
+        </div>
+
+        <div class="field">
+          <div class="field-label" style="margin-bottom:7px;">
+            Anchor Days
+            <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:0;margin-left:8px;color:var(--text-subtle);">always scheduled first</span>
+          </div>
+          <div class="day-chips" id="anchorChips"></div>
+          <div class="field-hint" style="margin-top:8px;">Anchored days take scheduling priority each week. Must overlap with allowed days.</div>
+        </div>
+
+        <!-- Feature 5: Settings Profiles -->
+        <div class="field">
+          <div class="field-label" style="margin-bottom:7px;">Settings Profile</div>
+          <div class="profile-row">
+            <select id="profileSelect"><option value="">— No profile —</option></select>
+            <button class="btn btn-secondary btn-profile" id="profileSaveBtn" title="Save current settings as a profile">+ Save</button>
+            <button class="btn btn-secondary btn-profile btn-profile-del" id="profileDeleteBtn" title="Delete selected profile">✕</button>
+          </div>
+          <div class="field-hint" style="margin-top:5px;">Saves: required %, pattern, basis, allowed &amp; anchor days.</div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" id="run">Generate Plan</button>
+          <span class="pro-gate" id="icsBtnWrap">
+            <button class="btn btn-secondary" id="downloadIcs" disabled>⬇ Download ICS</button>
+          </span>
+          <span class="pro-gate" id="printBtnWrap">
+            <button class="btn btn-secondary no-print" id="printBtn">⎙ Print Summary</button>
+          </span>
+        </div>
+
+        <!-- WFH toggle + ICS tip — pro gate -->
+        <div class="pro-gate ics-options" id="icsOptionsWrap" style="margin-top:10px;">
+          <label class="toggle-item" style="margin-bottom:0;">
+            <input type="checkbox" id="includeWfhIcs" />
+            <div>
+              <div class="toggle-label">Include WFH days in ICS export</div>
+              <div class="toggle-sub">Exports as a separate deletable series in your calendar</div>
+            </div>
+          </label>
+          <div class="ics-tip" id="icsTip">
+            💡 <strong>One-tap removal:</strong> Import into a dedicated calendar (e.g. "Office Schedule"). To delete all events: iOS → Calendar app → tap calendar name → Delete Calendar. Android → open any event → tap the calendar → Delete.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- EXCLUSIONS ────────────────────────────────────────────── -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Exclusions &amp; Holidays</span></div>
+      <div class="card-body">
+
+        <div class="pro-gate" id="provinceGate">
+          <div class="gate-notice"><span>🔒</span><span>Province switching is a Pro feature. Showing Ontario.</span></div>
+          <div class="province-field-wrap field">
+            <div class="field-label">Province / Territory <span class="pro-badge">PRO</span></div>
+            <select id="province">
+              <optgroup label="Provinces">
+                <option value="ON">Ontario (ON)</option>
+                <option value="BC">British Columbia (BC)</option>
+                <option value="AB">Alberta (AB)</option>
+                <option value="QC">Quebec (QC)</option>
+                <option value="MB">Manitoba (MB)</option>
+                <option value="SK">Saskatchewan (SK)</option>
+                <option value="NS">Nova Scotia (NS)</option>
+                <option value="NB">New Brunswick (NB)</option>
+                <option value="NL">Newfoundland and Labrador (NL)</option>
+                <option value="PE">Prince Edward Island (PE)</option>
+              </optgroup>
+              <optgroup label="Territories">
+                <option value="YT">Yukon (YT)</option>
+                <option value="NT">Northwest Territories (NT)</option>
+                <option value="NU">Nunavut (NU)</option>
+              </optgroup>
+            </select>
+            <div class="province-hint">Holiday calendar and compliance label update automatically per jurisdiction.</div>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:16px;">
+          <div class="hol-header">
+            <span class="field-label" style="margin-bottom:0;">Statutory Holidays</span>
+            <a class="hol-restore-link" id="holidayRestoreLink" href="#" onclick="restoreDefaultHolidays(event)">↺ Restore defaults</a>
+          </div>
+          <div class="field-hint" style="margin-bottom:8px;">Auto-generated for selected jurisdiction &amp; year. Click ✕ to remove · add custom dates below.</div>
+          <div class="holiday-list" id="holidayList"><div style="color:var(--text-subtle);font-style:italic;">Generate a plan to load holidays.</div></div>
+          <!-- Custom holiday add form (always available) -->
+          <div class="custom-hol-add">
+            <input type="date" id="customHolDate" />
+            <input type="text" id="customHolName" placeholder="e.g. Company Shutdown" maxlength="40" />
+            <button class="btn btn-secondary btn-hol-add" id="customHolBtn">+ Add</button>
+          </div>
+        </div>
+
+        <div class="pro-gate" id="ptoGate" style="margin-top:16px;">
+          <div class="gate-notice"><span>🔒</span><span>Custom PTO exclusions are a Pro feature.</span></div>
+
+          <div class="field-label" style="margin-bottom:10px;">
+            Vacation &amp; Away Dates <span class="pro-badge">PRO</span>
+          </div>
+
+          <!-- Range picker -->
+          <div class="range-picker" id="rangePicker">
+            <div class="rp-title">Quick Add</div>
+            <div class="rp-grid">
+              <div class="field">
+                <label class="field-label" for="rpStart">From</label>
+                <input type="date" id="rpStart" />
+              </div>
+              <div class="field">
+                <label class="field-label" for="rpEnd">To (optional)</label>
+                <input type="date" id="rpEnd" />
+              </div>
+            </div>
+            <div class="rp-row">
+              <div class="field">
+                <label class="field-label" for="rpType">Type</label>
+                <select id="rpType">
+                  <option value="Vacation">Vacation</option>
+                  <option value="PTO">PTO</option>
+                  <option value="Sick">Sick Day</option>
+                  <option value="Conference">Conference</option>
+                  <option value="Custom">Custom…</option>
+                </select>
+              </div>
+              <div class="field" id="rpCustomField" style="display:none;">
+                <label class="field-label" for="rpCustom">Label</label>
+                <input type="text" id="rpCustom" placeholder="e.g. Training" maxlength="20" />
+              </div>
+              <button class="btn btn-secondary btn-rp-add" id="rpAdd">+ Add</button>
+            </div>
+          </div>
+
+          <!-- Textarea: source of truth -->
+          <div class="field-hint" style="margin-bottom:6px;">
+            Or type directly. Formats: <code>YYYY-MM-DD — Vacation</code> &nbsp;or&nbsp; <code>YYYY-MM-DD to YYYY-MM-DD — Vacation</code>
+          </div>
+          <textarea id="extraExclude" rows="5" placeholder="2026-07-06 to 2026-07-18 — Vacation&#10;2026-08-15 — Sick Day&#10;2026-09-10 — Conference"></textarea>
+
+          <!-- Apply button — patches dayStates without regenerating -->
+          <button class="apply-btn" id="applyExclusions">Apply to Schedule</button>
+
+        </div>
+
+      </div>
+    </div>
+  </div><!-- /config-grid -->
+
+  <!-- PROFILE BADGE STRIP (Features 1-5) ─────────────────────── -->
+  <div class="profile-badge-strip no-print" id="profileBadgeStrip">
+    <div class="pbs-left">
+      <span class="pbs-label">Working in</span>
+      <span class="pbs-name" id="pbsName">Default workspace</span>
+      <span class="pbs-drift" id="pbsDrift">✱ modified</span>
+      <span class="pbs-divider">·</span>
+      <span class="pbs-settings" id="pbsSettings"></span>
+    </div>
+    <div class="pbs-right">
+      <button class="pbs-btn pbs-btn-update" id="pbsUpdateBtn">↑ Update profile</button>
+      <button class="pbs-btn pbs-btn-switch" id="pbsSwitchBtn">Switch profile</button>
+    </div>
+  </div>
+
+  <!-- PERIOD MISMATCH BANNER ──────────────────────────────────── -->
+  <div class="period-banner no-print" id="periodBanner">
+    <span id="periodBannerMsg">⚠ Settings changed from saved schedule.</span>
+    <button onclick="run()">Generate New Plan</button>
+  </div>
+
+  <!-- ACTUAL SUMMARY ──────────────────────────────────────────── -->
+  <div class="actual-summary-strip no-print" id="actualSummary">
+    <span class="as-label">Attendance</span>
+    <span class="as-attended" id="asAttended">✓ 0 Attended</span>
+    <span class="as-sep">·</span>
+    <span class="as-missed" id="asMissed">✗ 0 Missed</span>
+    <span class="as-sep">·</span>
+    <span class="as-pending" id="asPending">○ 0 Pending</span>
+  </div>
+
+  <!-- KPI AREA ────────────────────────────────────────────────── -->
+  <div class="kpi-area" id="kpiArea"></div>
+
+  <!-- RESULTS ─────────────────────────────────────────────────── -->
+  <div class="card" id="resultsCard">
+    <div class="card-header">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="nav-btn" id="navPrev" title="Previous period">‹</button>
+        <span class="results-title" id="resultsTitle">Results</span>
+        <button class="nav-btn" id="navNext" title="Next period">›</button>
+      </div>
+      <div id="statusBadge"></div>
+    </div>
+    <!-- Year-at-a-glance (Feature 3) -->
+    <div class="yag-strip no-print" id="yagStrip" style="display:none;"></div>
+    <div class="card-body" id="output">
+      <div class="empty-state">
+        <div class="empty-icon">📅</div>
+        <div class="empty-title">No plan generated yet</div>
+        <div class="empty-sub">Configure your settings above and click Generate Plan.</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ═══ BACKUP MODAL ════════════════════════════════════════════ -->
+<div class="modal-overlay no-print" id="backupModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Backup &amp; Restore</span>
+      <button class="modal-close" id="backupModalClose">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Encrypted export -->
+      <div class="backup-section">
+        <div class="backup-section-hdr">
+          <span class="backup-section-title">Encrypted Backup</span>
+          <span class="bsec-badge badge-enc">AES-256-GCM</span>
+        </div>
+        <div class="backup-section-desc">Full backup — notes, attendance marks, vacation data, all settings. Encrypted with your passphrase. Unreadable without it. Use this to restore on another browser or after clearing cache.</div>
+        <div class="field">
+          <label class="field-label" for="exportPassphrase">Passphrase</label>
+          <input type="password" id="exportPassphrase" placeholder="Create a strong passphrase" autocomplete="new-password" />
+          <div class="strength-row">
+            <div class="strength-bar"><div class="strength-fill" id="exportStrFill"></div></div>
+            <span class="strength-lbl" id="exportStrLabel"></span>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="exportPassConfirm">Confirm passphrase</label>
+          <input type="password" id="exportPassConfirm" placeholder="Re-enter passphrase" autocomplete="new-password" />
+          <div class="field-error-msg" id="exportPassError">Passphrases do not match.</div>
+        </div>
+        <button class="btn btn-primary" id="exportEncryptedBtn">⬇ Download Encrypted Backup (.hop)</button>
+        <!-- Feature 6: multi-period export toggle -->
+        <label class="toggle-item" style="padding:8px 11px;margin-top:2px;">
+          <input type="checkbox" id="exportAllPeriods" />
+          <div>
+            <div class="toggle-label" style="font-size:12.5px;">Include all stored periods</div>
+            <div class="toggle-sub">Backs up every month/quarter you've generated this session</div>
+          </div>
+        </label>
+      </div>
+
+      <div class="backup-divider"></div>
+
+      <!-- Plain export -->
+      <div class="backup-section">
+        <div class="backup-section-hdr">
+          <span class="backup-section-title">Plain Schedule Export</span>
+          <span class="bsec-badge badge-plain">Readable</span>
+        </div>
+        <div class="backup-section-desc">Office &amp; WFH dates only — no notes, no attendance marks. Safe to share with HR or a manager. Cannot be fully restored as a backup.</div>
+        <button class="btn btn-secondary" id="exportPlainBtn">⬇ Download Schedule (.json)</button>
+      </div>
+
+      <div class="backup-divider"></div>
+
+      <!-- Import -->
+      <div class="backup-section">
+        <div class="backup-section-hdr">
+          <span class="backup-section-title">Import / Restore</span>
+        </div>
+        <div class="backup-section-desc">Restore from a <code>.hop</code> encrypted backup (full) or import a <code>.json</code> plain schedule (dates only). Your current plan is replaced after confirmation.</div>
+        <div class="import-dropzone" id="importDropzone">
+          <input type="file" id="importFileInput" accept=".hop,.json" style="display:none" />
+          <div class="dz-icon">📂</div>
+          <div class="dz-label">Drop file here or <a id="importBrowseLink">browse</a></div>
+          <div class="dz-hint">.hop (encrypted backup) · .json (plain schedule)</div>
+          <div class="dz-loaded" id="dzLoaded" style="display:none;"></div>
+        </div>
+        <div class="field" id="importPassField" style="display:none;">
+          <label class="field-label" for="importPassphrase">Passphrase</label>
+          <input type="password" id="importPassphrase" placeholder="Enter the backup passphrase" autocomplete="current-password" />
+          <div class="field-error-msg" id="importPassError">Incorrect passphrase or corrupted file.</div>
+        </div>
+        <button class="btn btn-primary" id="importDecryptBtn" style="display:none;">Decrypt &amp; Preview</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══ IMPORT PREVIEW MODAL ════════════════════════════════════ -->
+<div class="modal-overlay no-print" id="importPreviewModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Confirm Import</span>
+    </div>
+    <div class="modal-body">
+      <div id="importPreviewContent"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="importCancelBtn">← Back</button>
+      <button class="btn btn-primary" id="importConfirmBtn">↑ Import &amp; Restore</button>
+    </div>
+  </div>
+</div>
+
+<footer class="app-footer no-print">
+  Hybrid Office Planner &nbsp;·&nbsp; v9.0 &nbsp;&middot;&nbsp;
+  <span id="footerJurisdiction">Ontario</span> Statutory Holidays &nbsp;·&nbsp;
+  Single-file · No data leaves your browser
+</footer>
+
+<script>
+"use strict";
+
+// ══════════════════════════════════════════════════════════════════
+//  WHITE-LABEL CONFIG
+// ══════════════════════════════════════════════════════════════════
+const CONFIG = {
+  companyName:  "",
+  appName:      "Hybrid Office Planner",
+  logoBase64:   "",
+  logoEmoji:    "🏢",
+  brandColour:  "#4F6BED",
+  province:     "ON",
+  proEnabled:   false,
+  defaultTheme: "light",
+};
+
+// ── Province labels ─────────────────────────────────────────────
+const PROVINCE_LABELS = {
+  ON:{label:"Ontario",                 sub:"Ontario · ESA Compliance"},
+  BC:{label:"British Columbia",        sub:"BC · Employment Standards Act"},
+  AB:{label:"Alberta",                 sub:"Alberta · Employment Standards Code"},
+  QC:{label:"Quebec",                  sub:"Quebec · Act Respecting Labour Standards"},
+  MB:{label:"Manitoba",                sub:"Manitoba · Employment Standards Code"},
+  SK:{label:"Saskatchewan",            sub:"Saskatchewan · Employment Act"},
+  NS:{label:"Nova Scotia",             sub:"Nova Scotia · Labour Standards Code"},
+  NB:{label:"New Brunswick",           sub:"New Brunswick · Employment Standards Act"},
+  NL:{label:"Newfoundland & Labrador", sub:"NL · Labour Standards Act"},
+  PE:{label:"Prince Edward Island",    sub:"PEI · Employment Standards Act"},
+  YT:{label:"Yukon",                   sub:"Yukon · Employment Standards Act"},
+  NT:{label:"Northwest Territories",   sub:"NT · Employment Standards Act"},
+  NU:{label:"Nunavut",                 sub:"Nunavut · Labour Standards Act"},
+};
+
+const monthNames  = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const DOW         = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const pad2        = n => String(n).padStart(2,"0");
+const fmt         = d => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+const dayName     = d => DOW[d.getDay()];
+const STORAGE_KEY    = "hybrid_planner_v10";
+const DEFAULT_PROFILE = "__default__";
+
+let planMode        = "monthly";
+let isPro           = CONFIG.proEnabled;
+let runTimer        = null;
+let lastResults     = [];
+let lastPeriodStats = { countedDays:0, required:0 };
+let lastPeriodKey   = "";
+let dayStates        = {};
+let removedHolidays  = new Set();
+let customHolidays   = [];
+let hasUnsavedChanges = false;
+// Feature 1: per-period storage — namespaced by profile
+let allPeriodStates  = {};  // { "profileName": { "monthly:2026-05": {...} } }
+// Feature 5: settings profiles
+let settingsProfiles = {};
+// Feature 1/2: active profile context
+let activeProfileName = DEFAULT_PROFILE;
+// Ownership: tracks which profile produced the current dayStates.
+// savePeriodState only writes when lastProfileKey === activeProfileName.
+let lastProfileKey    = DEFAULT_PROFILE;
+
+// ── Date utilities ──────────────────────────────────────────────
+function daysInMonth(y,m)  { return new Date(y,m+1,0).getDate(); }
+function addDays(d,n)      { const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function startOfWeekMon(d) { const x=new Date(d),dow=x.getDay(); x.setDate(x.getDate()+(dow===0?-6:1-dow)); x.setHours(0,0,0,0); return x; }
+function parseDateList(text){
+  const s=new Set();
+  text.split(/\r?\n/).map(t=>t.trim()).filter(Boolean).forEach(l=>{const m=l.match(/^(\d{4}-\d{2}-\d{2})/);if(m) s.add(m[1]);});
+  return s;
+}
+function parsePattern(text){
+  const n=text.split(/[, ]+/).map(s=>Number(s.trim())).filter(n=>Number.isFinite(n)&&n>=0);
+  return n.length?n:[0];
+}
+function isCountedDay(d,basis){const g=d.getDay();return basis==="all"||(g>=1&&g<=5);}
+function todayStr(){ return fmt(new Date()); }
+
+// ── Period key (Feature 1: architecture fix) ────────────────────
+function getPeriodKey(){
+  if(planMode==='monthly'){
+    const y=document.getElementById("year").value;
+    const m=document.getElementById("month").value;
+    return `monthly:${y}-${pad2(Number(m)+1)}`;
+  } else {
+    const y=document.getElementById("yearQ").value;
+    const q=document.getElementById("quarter").value;
+    return `quarterly:${y}-Q${Number(q)+1}`;
+  }
+}
+
+function setResultsTitle(){
+  if(planMode==='monthly'){
+    const y=Number(document.getElementById("year").value);
+    const m=Number(document.getElementById("month").value);
+    document.getElementById("resultsTitle").textContent=`${monthNames[m]} ${y}`;
+  } else {
+    const y=document.getElementById("yearQ").value;
+    const q=Number(document.getElementById("quarter").value);
+    document.getElementById("resultsTitle").textContent=`Q${Number(q)+1} ${y}`;
+  }
+}
+
+// ── Save / unsaved tracking (Feature 6) ─────────────────────────
+function markUnsaved(){
+  hasUnsavedChanges=true;
+  const btn=document.getElementById("headerSaveBtn");
+  const status=document.getElementById("headerSaveStatus");
+  if(btn){btn.textContent="Save";btn.className="header-save-btn unsaved";}
+  if(status){status.textContent="● Unsaved changes";status.className="header-save-status unsaved";}
+}
+
+function performSave(){
+  // Full explicit save with period key, timestamps
+  const now=new Date();
+  const timeStr=`${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
+  try{
+    localStorage.setItem(STORAGE_KEY,JSON.stringify({
+      year:document.getElementById("year").value,
+      month:document.getElementById("month").value,
+      yearQ:document.getElementById("yearQ").value,
+      quarter:document.getElementById("quarter").value,
+      pct:document.getElementById("pct").value,
+      basis:document.getElementById("basis").value,
+      pattern:document.getElementById("pattern").value,
+      observed:document.getElementById("observed").checked,
+      extraExclude:document.getElementById("extraExclude").value,
+      province:document.getElementById("province").value,
+      allowed:Array.from(allowed),
+      anchorDays:Array.from(anchorDays),
+      planMode,isPro,
+      theme:document.documentElement.getAttribute("data-theme")||"light",
+      periodKey:lastPeriodKey,
+      lastResultsMeta:lastResults.map(r=>({year:r.year,monthIdx:r.monthIdx})),
+      removedHolidays:Array.from(removedHolidays),
+      customHolidays,
+      dayStates,
+      lastPeriodStats,
+      savedTime:timeStr,
+    }));
+  }catch(_){}
+  hasUnsavedChanges=false;
+  const btn=document.getElementById("headerSaveBtn");
+  const status=document.getElementById("headerSaveStatus");
+  if(btn){
+    btn.textContent="✓ Saved";btn.className="header-save-btn saved";
+    setTimeout(()=>{if(!hasUnsavedChanges){btn.textContent="Save";btn.className="header-save-btn";}},3500);
+  }
+  if(status){status.textContent=`Saved ${timeStr}`;status.className="header-save-status saved";}
+}
+
+
+function nthWeekday(y,m,wd,nth){const f=new Date(y,m,1),d=(wd-f.getDay()+7)%7;return new Date(y,m,1+d+(nth-1)*7);}
+function victoriaDay(y){
+  // "Monday immediately PRECEDING May 25" — strictly before, never May 25 itself
+  const m25=new Date(y,4,25),dow=m25.getDay();
+  const daysBack=dow===1?7:(dow+6)%7;
+  return addDays(m25,-daysBack);
+}
+function easterSunday(y){
+  const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25);
+  const g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7;
+  const m2=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m2+114)/31),dy=((h+l-7*m2+114)%31)+1;
+  return new Date(y,mo-1,dy);
+}
+function observedMon(d){const dow=d.getDay();if(dow===6) return addDays(d,2);if(dow===0) return addDays(d,1);return null;}
+function nearestMon(y,m,day){
+  const t=new Date(y,m,day),dow=t.getDay();
+  if(dow===1) return t;
+  const back=dow===0?6:dow-1, fwd=8-dow;
+  return addDays(t,fwd<back?fwd:-back);
+}
+function dedup(list,io){
+  const obs=[];
+  if(io) for(const h of list){const om=observedMon(h.date);if(om) obs.push({name:`${h.name} (Observed)`,date:om});}
+  const all=[...list,...obs].sort((a,b)=>a.date-b.date);
+  const seen=new Set(),out=[];
+  for(const h of all){const k=fmt(h.date);if(!seen.has(k)){seen.add(k);out.push(h);}}
+  return out;
+}
+
+// ── Province holiday sets ───────────────────────────────────────
+function ontarioHolidays(y,io){const e=easterSunday(y);return dedup([{name:"New Year's Day",date:new Date(y,0,1)},{name:"Family Day",date:nthWeekday(y,1,1,3)},{name:"Good Friday",date:addDays(e,-2)},{name:"Victoria Day",date:victoriaDay(y)},{name:"Canada Day",date:new Date(y,6,1)},{name:"Labour Day",date:nthWeekday(y,8,1,1)},{name:"Thanksgiving Day",date:nthWeekday(y,9,1,2)},{name:"Christmas Day",date:new Date(y,11,25)},{name:"Boxing Day",date:new Date(y,11,26)}],io);}
+function bcHolidays(y,io){const e=easterSunday(y);return dedup([{name:"New Year's Day",date:new Date(y,0,1)},{name:"Family Day",date:nthWeekday(y,1,1,3)},{name:"Good Friday",date:addDays(e,-2)},{name:"Easter Monday",date:addDays(e,1)},{name:"Victoria Day",date:victoriaDay(y)},{name:"Canada Day",date:new Date(y,6,1)},{name:"BC Day",date:nthWeekday(y,7,1,1)},{name:"Labour Day",date:nthWeekday(y,8,1,1)},{name:"Nat'l Day for Truth & Reconciliation",date:new Date(y,8,30)},{name:"Thanksgiving Day",date:nthWeekday(y,9,1,2)},{name:"Remembrance Day",date:new Date(y,10,11)},{name:"Christmas Day",date:new Date(y,11,25)},{name:"Boxing Day",date:new Date(y,11,26)}],io);}
+function abHolidays(y,io){const e=easterSunday(y);return dedup([{name:"New Year's Day",date:new Date(y,0,1)},{name:"Family Day",date:nthWeekday(y,1,1,3)},{name:"Good Friday",date:addDays(e,-2)},{name:"Easter Monday",date:addDays(e,1)},{name:"Victoria Day",date:victoriaDay(y)},{name:"Canada Day",date:new Date(y,6,1)},{name:"Heritage Day",date:nthWeekday(y,7,1,1)},{name:"Labour Day",date:nthWeekday(y,8,1,1)},{name:"Nat'l Day for Truth & Reconciliation",date:new Date(y,8,30)},{name:"Thanksgiving Day",date:nthWeekday(y,9,1,2)},{name:"Remembrance Day",date:new Date(y,10,11)},{name:"Christmas Day",date:new Date(y,11,25)}],io);}
+function qcHolidays(y,io){const e=easterSunday(y);return dedup([{name:"New Year's Day",date:new Date(y,0,1)},{name:"Good Friday",date:addDays(e,-2)},{name:"Easter Monday",date:addDays(e,1)},{name:"Journée nationale des Patriotes",date:victoriaDay(y)},{name:"Fête nationale (Saint-Jean-Baptiste)",date:new Date(y,5,24)},{name:"Canada Day",date:new Date(y,6,1)},{name:"Labour Day",date:nthWeekday(y,8,1,1)},{name:"Thanksgiving Day",date:nthWeekday(y,9,1,2)},{name:"Christmas Day",date:new Date(y,11,25)},{name:"Boxing Day",date:new Date(y,11,26)}],io);}
+function mbHolidays(y,io){const e=easterSunday(y);return dedup([{name:"New Year's Day",date:new Date(y,0,1)},{name:"Louis Riel Day",date:nthWeekday(y,1,1,3)},{name:"Good Friday",date:addDays(e,-2)},{name:"Victoria Day",date:victoriaDay(y)},{name:"Canada Day",date:new Date(y,6,1)},{name:"Terry Fox Day",date:nthWeekday(y,7,1,1)},{name:"Labour Day",date:nthWeekday(y,8,1,1)},{name:"Thanksgiving Day",date:nthWeekday(y,9,1,2)},{name:"Remembrance Day",date:new Date(y,10,11)},{name:"Christmas Day",date:new Date(y,11,25)},{name:"Boxing Day",date:new Date(y,11,26)}],io);}
+function skHolidays(y,io){const e=easterSunday(y);return dedup([{name:"New Year's Day",date:new Date(y,0,1)},{name:"Family Day",date:nthWeekday(y,1,1,3)},{name:"Good Friday",date:addDays(e,-2)},{name:"Victoria Day",date:victoriaDay(y)},{name:"Canada Day",date:new Date(y,6,1)},{name:"Saskatchewan Day",date:nthWeekday(y,7,1,1)},{name:"Labour Day",date:nthWeekday(y,8,1,1)},{name:"Thanksgiving Day",date:nthWeekday(y,9,1,2)},{name:"Remembrance Day",date:new Date(y,10,11)},{name:"Christmas Day",date:new Date(y,11,25)}],io);}
+function nsHolidays(y,io){const e=easterSunday(y);return dedup([{name:"New Year's Day",date:new Date(y,0,1)},{name:"Heritage Day",date:nthWeekday(y,1,1,3)},{name:"Good Friday",date:addDays(e,-2)},{name:"Victoria Day",date:victoriaDay(y)},{name:"Canada Day",date:new Date(y,6,1)},{name:"Natal Day",date:nthWeekday(y,7,1,1)},{name:"Labour Day",date:nthWeekday(y,8,1,1)},{name:"Thanksgiving Day",date:nthWeekday(y,9,1,2)},{name:"Remembrance Day",date:new Date(y,10,11)},{name:"Christmas Day",date:new Date(y,11,25)},{name:"Boxing Day",date:new Date(y,11,26)}],io);}
+function nbHolidays(y,io){const e=easterSunday(y);return dedup([{name:"New Year's Day",date:new Date(y,0,1)},{name:"Family Day",date:nthWeekday(y,1,1,3)},{name:"Good Friday",date:addDays(e,-2)},{name:"Victoria Day",date:victoriaDay(y)},{name:"Canada Day",date:new Date(y,6,1)},{name:"New Brunswick Day",date:nthWeekday(y,7,1,1)},{name:"Labour Day",date:nthWeekday(y,8,1,1)},{name:"Thanksgiving Day",date:nthWeekday(y,9,1,2)},{name:"Remembrance Day",date:new Date(y,10,11)},{name:"Christmas Day",date:new Date(y,11,25)},{name:"Boxing Day",date:new Date(y,11,26)}],io);}
+function nlHolidays(y,io){const e=easterSunday(y);return dedup([{name:"New Year's Day",date:new Date(y,0,1)},{name:"St. Patrick's Day",date:nearestMon(y,2,17)},{name:"Good Friday",date:addDays(e,-2)},{name:"St. George's Day",date:nearestMon(y,3,23)},{name:"Victoria Day",date:victoriaDay(y)},{name:"Discovery Day (NL)",date:nearestMon(y,5,24)},{name:"Canada Day",date:new Date(y,6,1)},{name:"Orangemen's Day",date:nearestMon(y,6,12)},{name:"Labour Day",date:nthWeekday(y,8,1,1)},{name:"Thanksgiving Day",date:nthWeekday(y,9,1,2)},{name:"Remembrance Day",date:new Date(y,10,11)},{name:"Christmas Day",date:new Date(y,11,25)},{name:"Boxing Day",date:new Date(y,11,26)}],io);}
+function peHolidays(y,io){const e=easterSunday(y);return dedup([{name:"New Year's Day",date:new Date(y,0,1)},{name:"Islander Day",date:nthWeekday(y,1,1,3)},{name:"Good Friday",date:addDays(e,-2)},{name:"Victoria Day",date:victoriaDay(y)},{name:"Canada Day",date:new Date(y,6,1)},{name:"Labour Day",date:nthWeekday(y,8,1,1)},{name:"Thanksgiving Day",date:nthWeekday(y,9,1,2)},{name:"Remembrance Day",date:new Date(y,10,11)},{name:"Christmas Day",date:new Date(y,11,25)},{name:"Boxing Day",date:new Date(y,11,26)}],io);}
+function ytHolidays(y,io){const e=easterSunday(y);return dedup([{name:"New Year's Day",date:new Date(y,0,1)},{name:"Family Day",date:nthWeekday(y,1,1,3)},{name:"Good Friday",date:addDays(e,-2)},{name:"Victoria Day",date:victoriaDay(y)},{name:"National Indigenous Peoples Day",date:new Date(y,5,21)},{name:"Canada Day",date:new Date(y,6,1)},{name:"Discovery Day (YT)",date:nthWeekday(y,7,1,3)},{name:"Labour Day",date:nthWeekday(y,8,1,1)},{name:"Thanksgiving Day",date:nthWeekday(y,9,1,2)},{name:"Remembrance Day",date:new Date(y,10,11)},{name:"Christmas Day",date:new Date(y,11,25)}],io);}
+function ntHolidays(y,io){const e=easterSunday(y);return dedup([{name:"New Year's Day",date:new Date(y,0,1)},{name:"Family Day",date:nthWeekday(y,1,1,3)},{name:"Good Friday",date:addDays(e,-2)},{name:"Victoria Day",date:victoriaDay(y)},{name:"National Indigenous Peoples Day",date:new Date(y,5,21)},{name:"Canada Day",date:new Date(y,6,1)},{name:"Civic Holiday",date:nthWeekday(y,7,1,1)},{name:"Labour Day",date:nthWeekday(y,8,1,1)},{name:"Thanksgiving Day",date:nthWeekday(y,9,1,2)},{name:"Remembrance Day",date:new Date(y,10,11)},{name:"Christmas Day",date:new Date(y,11,25)}],io);}
+function nuHolidays(y,io){return dedup([{name:"New Year's Day",date:new Date(y,0,1)},{name:"Good Friday",date:addDays(easterSunday(y),-2)},{name:"Victoria Day",date:victoriaDay(y)},{name:"Canada Day",date:new Date(y,6,1)},{name:"Nunavut Day",date:new Date(y,6,9)},{name:"Civic Holiday",date:nthWeekday(y,7,1,1)},{name:"Labour Day",date:nthWeekday(y,8,1,1)},{name:"Thanksgiving Day",date:nthWeekday(y,9,1,2)},{name:"Remembrance Day",date:new Date(y,10,11)},{name:"Christmas Day",date:new Date(y,11,25)}],io);}
+
+function getHolidays(prov,y,io){
+  switch(prov){case "BC":return bcHolidays(y,io);case "AB":return abHolidays(y,io);case "QC":return qcHolidays(y,io);case "MB":return mbHolidays(y,io);case "SK":return skHolidays(y,io);case "NS":return nsHolidays(y,io);case "NB":return nbHolidays(y,io);case "NL":return nlHolidays(y,io);case "PE":return peHolidays(y,io);case "YT":return ytHolidays(y,io);case "NT":return ntHolidays(y,io);case "NU":return nuHolidays(y,io);default:return ontarioHolidays(y,io);}
+}
+
+// ── Allowed & Anchor days ───────────────────────────────────────
+const allowed    = new Set([1,2,3]);
+const anchorDays = new Set([3]); // Wednesday by default
+
+// ── Day selection (anchor-aware) ────────────────────────────────
+function preferredOrder(t){if(t>=3) return [1,2,3,4,5,6,0];if(t===2) return [2,3,1,4,5,6,0];return [3,2,1,4,5,6,0];}
+function pickDaysForWeek(weekDates,target,allowedSet,excludedSet,monthIdx,basis,anchors){
+  const avail=new Map();
+  for(const d of weekDates){if(d.getMonth()!==monthIdx||excludedSet.has(fmt(d))||!isCountedDay(d,basis)||!allowedSet.has(d.getDay())) continue;avail.set(d.getDay(),d);}
+  const picked=[];
+  // Anchors first (Mon→Fri order)
+  for(const dow of [1,2,3,4,5,0,6]){if(picked.length>=target) break;if(anchors.has(dow)&&avail.has(dow)) picked.push(avail.get(dow));}
+  // Fill remaining with preference order
+  const order=preferredOrder(target);
+  for(const dow of order){if(picked.length>=target) break;if(!anchors.has(dow)&&avail.has(dow)) picked.push(avail.get(dow));}
+  const seen=new Set(),unique=[];
+  for(const d of picked){const k=fmt(d);if(!seen.has(k)){seen.add(k);unique.push(d);}}
+  return unique.slice(0,target);
+}
+
+// ── Plan generation ─────────────────────────────────────────────
+function generatePlan(y,monthIdx,pct,patternArr,basis,excludedSet,allowedSet,anchors){
+  const dim=daysInMonth(y,monthIdx);
+  const allDates=Array.from({length:dim},(_,i)=>new Date(y,monthIdx,i+1));
+  let countedDays=0;
+  for(const d of allDates) if(!excludedSet.has(fmt(d))&&isCountedDay(d,basis)) countedDays++;
+  const required=Math.ceil(countedDays*(pct/100));
+  let eligibleTotal=0;
+  for(const d of allDates) if(!excludedSet.has(fmt(d))&&isCountedDay(d,basis)&&allowedSet.has(d.getDay())) eligibleTotal++;
+  const weekKeys=new Set(allDates.map(d=>fmt(startOfWeekMon(d))));
+  const weeks=Array.from(weekKeys).sort().map(k=>{const start=new Date(k+"T00:00:00");const dates=Array.from({length:7},(_,i)=>{const d=new Date(start);d.setDate(start.getDate()+i);return d;});return {weekStart:k,dates};});
+  let remaining=required,pi=0;
+  const plannedWeeks=[],pickedEvents=[];
+  for(const w of weeks){
+    if(remaining<=0){plannedWeeks.push({weekStart:w.weekStart,target:0,picked:[],count:0,metAlready:true});continue;}
+    const target=patternArr[pi%patternArr.length];pi++;
+    if(target===0){plannedWeeks.push({weekStart:w.weekStart,target:0,picked:[],count:0,metAlready:false});continue;}
+    const picked=pickDaysForWeek(w.dates,target,allowedSet,excludedSet,monthIdx,basis,anchors);
+    const take=Math.min(picked.length,remaining);
+    const fp=picked.slice(0,take);
+    remaining-=fp.length;
+    const pickedList=fp.map(d=>({date:fmt(d),day:dayName(d)}));
+    plannedWeeks.push({weekStart:w.weekStart,target,picked:pickedList,count:pickedList.length,metAlready:false});
+    pickedList.forEach(x=>pickedEvents.push({date:x.date,summary:"In-office day",description:`Scheduled office day (${x.day}).`}));
+  }
+  const plannedTotal=plannedWeeks.reduce((s,w)=>s+w.count,0);
+  return {year:y,monthIdx,countedDays,required,eligibleTotal,plannedTotal,feasible:eligibleTotal>=required,plannedWeeks,pickedEvents};
+}
+
+// ── dayStates management ────────────────────────────────────────
+function initDayStates(results,holidaySet,ptoSet,ptoLabels){
+  dayStates={};
+  for(const result of results){
+    const {year,monthIdx,plannedWeeks}=result;
+    const officeDates=new Set();
+    for(const w of plannedWeeks) for(const p of w.picked) officeDates.add(p.date);
+    const dim=daysInMonth(year,monthIdx);
+    for(let d=1;d<=dim;d++){
+      const date=new Date(year,monthIdx,d);
+      const dow=date.getDay();
+      if(dow===0||dow===6) continue;
+      const dateStr=fmt(date);
+      let type,source,label;
+      if(holidaySet.has(dateStr)){
+        type='holiday';source='system';label='Holiday';
+      } else if(ptoSet.has(dateStr)){
+        const info=ptoLabels?.get(dateStr);
+        type=info?.exType||'vacation';
+        source='exclusion';
+        label=info?.label||'Vacation';
+      } else if(officeDates.has(dateStr)){
+        type='office';source='generated';label='Office';
+      } else {
+        type='wfh';source='generated';label='WFH';
+      }
+      dayStates[dateStr]={type,source,label,actual:'pending',note:''};
+    }
+  }
+}
+
+function mergeSavedDayStates(saved){
+  const systemTypes=new Set(['holiday']);
+  for(const [dateStr,savedState] of Object.entries(saved)){
+    if(!dayStates[dateStr]) continue;
+    if(systemTypes.has(dayStates[dateStr].type)) continue;
+    if(savedState.source==='manual'||savedState.source==='exclusion'){
+      dayStates[dateStr].type=savedState.type;
+      dayStates[dateStr].source=savedState.source;
+      if(savedState.label) dayStates[dateStr].label=savedState.label;
+    }
+    if(savedState.actual) dayStates[dateStr].actual=savedState.actual;
+    if(savedState.note)   dayStates[dateStr].note=savedState.note;
+  }
+}
+
+// ── Exclusion parsing (Feature 1: range syntax + Feature 3: smart labels) ──
+function classifyLabel(rawLabel){
+  const l=(rawLabel||'').toLowerCase().trim();
+  if(!l||l.includes('vacation')) return 'vacation';
+  if(l.includes('pto')||l.includes('personal time')) return 'pto';
+  if(l.includes('sick')||l.includes('medical')||l.includes('health')) return 'sick';
+  if(l.includes('conference')||l.includes('training')||l.includes('offsite')) return 'conference';
+  return 'custom';
+}
+
+function parseExclusionLines(text){
+  // Returns [{dateStr, label, exType}]
+  const results=[];
+  const lines=text.split(/\r?\n/).map(t=>t.trim()).filter(Boolean);
+  for(const line of lines){
+    // Range: YYYY-MM-DD to YYYY-MM-DD — Label
+    const rangeM=line.match(/^(\d{4}-\d{2}-\d{2})\s+to\s+(\d{4}-\d{2}-\d{2})(?:\s*[—\-]+\s*(.+))?$/i);
+    if(rangeM){
+      const [,startStr,endStr,rawLabel]=rangeM;
+      const label=(rawLabel||'Vacation').trim();
+      const exType=classifyLabel(label);
+      let d=new Date(startStr+'T00:00:00');
+      const end=new Date(endStr+'T00:00:00');
+      while(d<=end){
+        const dow=d.getDay();
+        if(dow>=1&&dow<=5) results.push({dateStr:fmt(d),label,exType});
+        d=addDays(d,1);
+      }
+      continue;
+    }
+    // Single: YYYY-MM-DD — Label
+    const singleM=line.match(/^(\d{4}-\d{2}-\d{2})(?:\s*[—\-]+\s*(.+))?$/);
+    if(singleM){
+      const [,dateStr,rawLabel]=singleM;
+      const label=(rawLabel||'Vacation').trim();
+      const exType=classifyLabel(label);
+      results.push({dateStr,label,exType});
+    }
+  }
+  return results;
+}
+
+function buildPtoLabels(text){
+  // Returns Map<dateStr, {label, exType}>
+  const map=new Map();
+  for(const {dateStr,label,exType} of parseExclusionLines(text)){
+    map.set(dateStr,{label,exType});
+  }
+  return map;
+}
+
+// Feature 2: Apply exclusions to dayStates WITHOUT regenerating the plan
+function applyExclusionsToSchedule(){
+  if(!isPro){return;}
+  if(!Object.keys(dayStates).length){
+    alert('Generate a plan first, then apply exclusions.');
+    return;
+  }
+  const text=document.getElementById("extraExclude").value;
+  const parsed=parseExclusionLines(text);
+
+  // Step 1: Reset all existing exclusion-source cells back to WFH
+  for(const [,state] of Object.entries(dayStates)){
+    if(state.source==='exclusion'){
+      state.type='wfh';
+      state.source='generated';
+      state.label='WFH';
+    }
+  }
+
+  // Step 2: Apply new exclusions
+  for(const {dateStr,label,exType} of parsed){
+    if(!dayStates[dateStr]) continue;
+    if(dayStates[dateStr].type==='holiday') continue; // never overwrite statutory holidays
+    dayStates[dateStr].type=exType;
+    dayStates[dateStr].source='exclusion';
+    dayStates[dateStr].label=label;
+    dayStates[dateStr].actual='pending'; // clear actual for re-excluded days
+  }
+
+  // Step 3: Re-render and recalc
+  document.getElementById("output").innerHTML=renderGrid();
+  recalcCompliance();
+  updateActualKPIs();
+  savePeriodState(lastPeriodKey);renderYearGrid();renderYTDKpi();
+  markUnsaved();autoSave();
+
+  const btn=document.getElementById("applyExclusions");
+  btn.textContent='✓ Applied to Schedule';
+  btn.classList.add('applied');
+  setTimeout(()=>{btn.textContent='Apply to Schedule';btn.classList.remove('applied');},2200);
+}
+
+// ── ICS helpers ─────────────────────────────────────────────────
+function getWeekdaysInRange(startStr,endStr){
+  const dates=[];
+  let d=new Date(startStr+'T00:00:00');
+  const end=new Date(endStr+'T00:00:00');
+  while(d<=end){const dow=d.getDay();if(dow>=1&&dow<=5) dates.push(fmt(d));d=addDays(d,1);}
+  return dates;
+}
+function utcStamp(now){
+  return `${now.getUTCFullYear()}${pad2(now.getUTCMonth()+1)}${pad2(now.getUTCDate())}T${pad2(now.getUTCHours())}${pad2(now.getUTCMinutes())}${pad2(now.getUTCSeconds())}Z`;
+}
+function addOneDayStr(dateStr){return fmt(addDays(new Date(dateStr+'T00:00:00'),1));}
+
+
+
+// ── Grid builder ────────────────────────────────────────────────
+function buildWeekRows(){
+  const dates=Object.keys(dayStates).sort();
+  if(!dates.length) return [];
+  const weekMap=new Map();
+  for(const dateStr of dates){
+    const d=new Date(dateStr+'T00:00:00');
+    const weekKey=fmt(startOfWeekMon(d));
+    if(!weekMap.has(weekKey)) weekMap.set(weekKey,{weekStart:weekKey,days:{}});
+    weekMap.get(weekKey).days[d.getDay()]=dateStr;
+  }
+  return Array.from(weekMap.values()).sort((a,b)=>a.weekStart.localeCompare(b.weekStart));
+}
+
+function renderGrid(){
+  const weeks=buildWeekRows();
+  if(!weeks.length){
+    return `<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-title">No plan generated yet</div><div class="empty-sub">Configure your settings and click Generate Plan.</div></div>`;
+  }
+  const today=todayStr();
+  const isMultiMonth=lastResults.length>1;
+
+  // Dynamic legend — only show types present in dayStates
+  const typesPresent=new Set(Object.values(dayStates).map(s=>s.type));
+  const legendDefs=[
+    {type:'office',cls:'ld-office',label:'Office'},
+    {type:'wfh',cls:'ld-wfh',label:'WFH'},
+    {type:'holiday',cls:'ld-holiday',label:'Holiday'},
+    {type:'vacation',cls:'ld-vacation',label:'Vacation'},
+    {type:'pto',cls:'ld-pto',label:'PTO'},
+    {type:'sick',cls:'ld-sick',label:'Sick'},
+    {type:'conference',cls:'ld-conference',label:'Conference'},
+    {type:'custom',cls:'ld-custom',label:'Custom'},
+  ];
+  const legendItems=legendDefs
+    .filter(x=>typesPresent.has(x.type))
+    .map(x=>`<span class="legend-item"><span class="legend-dot ${x.cls}"></span>${x.label}</span>`)
+    .join('');
+
+  let html=`
+    <div class="grid-legend">
+      ${legendItems}
+      <span class="legend-note legend-edited"><span class="legend-edited-dot">●</span> Amber dot = manually edited &nbsp;·&nbsp; Click Office/WFH to toggle</span>
+    </div>
+    <div class="week-grid">
+      <div class="grid-week-header">
+        <div class="grid-hdr-week">Week</div>
+        <div class="grid-hdr-day">Mon</div>
+        <div class="grid-hdr-day">Tue</div>
+        <div class="grid-hdr-day">Wed</div>
+        <div class="grid-hdr-day">Thu</div>
+        <div class="grid-hdr-day">Fri</div>
+      </div>`;
+
+  let lastMonth=-1;
+  for(const week of weeks){
+    // Month separator (quarterly view)
+    if(isMultiMonth){
+      const firstDayStr=[1,2,3,4,5].map(dow=>week.days[dow]).find(Boolean);
+      if(firstDayStr){
+        const fd=new Date(firstDayStr+'T00:00:00');
+        if(fd.getMonth()!==lastMonth){
+          html+=`<div class="month-sep">${monthNames[fd.getMonth()]} ${fd.getFullYear()}</div>`;
+          lastMonth=fd.getMonth();
+        }
+      }
+    }
+    // Count office days this week
+    const officeCnt=[1,2,3,4,5].filter(dow=>{const ds=week.days[dow];return ds&&dayStates[ds]?.type==='office';}).length;
+    // Week label cell
+    const wDate=new Date(week.weekStart+'T00:00:00');
+    const wLabel=`${monthNames[wDate.getMonth()].slice(0,3)}<br>${wDate.getDate()}`;
+    html+=`<div class="week-row" data-week="${week.weekStart}">
+      <div class="week-label-cell">
+        <span class="week-label-date">${wLabel}</span>
+        <span class="week-office-count">${officeCnt} in</span>
+      </div>`;
+    // Mon–Fri cells
+    for(let dow=1;dow<=5;dow++){
+      const ds=week.days[dow];
+      if(!ds){html+=`<div class="day-cell day-cell--empty"></div>`;continue;}
+      html+=renderDayCell(ds,dayStates[ds],today);
+    }
+    html+=`</div>`;
+  }
+  html+=`</div>`;
+  return html;
+}
+
+function renderDayCell(dateStr,state,today){
+  if(!state) return `<div class="day-cell day-cell--empty"></div>`;
+  const d=new Date(dateStr+'T00:00:00');
+  const dayNum=d.getDate();
+  const isInteractive=state.type==='office'||state.type==='wfh';
+  const isManual=state.source==='manual';
+  const isPastOrToday=dateStr<=today;
+
+  const typeClass=`day-cell--${state.type}`;
+  const manualClass=isManual?' day-cell--manual':'';
+  const interClass=isInteractive?' day-cell--interactive':'';
+  const onCell=isInteractive?`onclick="toggleDayType('${dateStr}')"` :'';
+
+  // Feature 3: smart badge labels from state.label
+  const badgeMap={
+    office:     ['tb-office',     'Office'],
+    wfh:        ['tb-wfh',        'WFH'],
+    holiday:    ['tb-holiday',    'Holiday'],
+    vacation:   ['tb-vacation',   state.label||'Vacation'],
+    pto:        ['tb-pto',        state.label||'PTO'],
+    sick:       ['tb-sick',       state.label||'Sick'],
+    conference: ['tb-conference', state.label||'Conf'],
+    custom:     ['tb-custom',     (state.label||'Away').slice(0,8)],
+  };
+  const [bClass,bText]=badgeMap[state.type]||['tb-custom','Away'];
+
+  // Actual tracking (office days only)
+  let actualHtml='';
+  if(state.type==='office'){
+    const actual=state.actual||'pending';
+    let lbl,aClass;
+    if(actual==='attended'){lbl='✓ Attended';aClass='ab-attended';}
+    else if(actual==='missed'){lbl='✗ Missed';aClass='ab-missed';}
+    else if(isPastOrToday){lbl='○ Mark';aClass='ab-pending';}
+    else{lbl='· Upcoming';aClass='ab-upcoming';}
+    actualHtml=`<button class="actual-btn ${aClass}" onclick="cycleActual('${dateStr}',event)">${lbl}</button>`;
+  }
+
+  const hasNote=!!(state.note&&state.note.trim());
+  const safeNote=(state.note||'').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+
+  return `<div class="day-cell ${typeClass}${manualClass}${interClass}" id="cell-${dateStr}" ${onCell}>
+    <div class="cell-top">
+      <span class="day-num">${dayNum}</span>
+      <span class="type-badge ${bClass}">${bText}</span>
+    </div>
+    <div class="cell-bottom">
+      ${actualHtml}
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;margin-left:auto;">
+        <button class="note-btn${hasNote?' has-note':''}" onclick="toggleNote('${dateStr}',event)" title="${hasNote?'Edit note':'Add note'}">✎</button>
+      </div>
+    </div>
+    <div class="note-area" id="note-area-${dateStr}" onclick="event.stopPropagation()">
+      <textarea rows="2" placeholder="Add a note…" oninput="saveNote('${dateStr}',this.value)">${safeNote}</textarea>
+    </div>
+  </div>`;
+}
+
+// ── Cell interaction handlers ───────────────────────────────────
+window.toggleDayType=function(dateStr){
+  const state=dayStates[dateStr];
+  if(!state||!(state.type==='office'||state.type==='wfh')) return;
+  // Preserve note from DOM
+  const noteArea=document.getElementById(`note-area-${dateStr}`);
+  if(noteArea){const ta=noteArea.querySelector('textarea');if(ta) state.note=ta.value;}
+  // Toggle
+  state.type=state.type==='office'?'wfh':'office';
+  state.source='manual';
+  if(state.type==='wfh') state.actual='pending';
+  const cell=document.getElementById(`cell-${dateStr}`);
+  if(cell){
+    const temp=document.createElement('div');
+    temp.innerHTML=renderDayCell(dateStr,state,todayStr());
+    cell.parentNode.replaceChild(temp.firstElementChild,cell);
+  }
+  updateWeekCount(dateStr);
+  recalcCompliance();
+  updateActualKPIs();
+  savePeriodState(lastPeriodKey);renderYearGrid();renderYTDKpi();
+  markUnsaved();autoSave();
+};
+
+window.cycleActual=function(dateStr,event){
+  event.stopPropagation();
+  const state=dayStates[dateStr];
+  if(!state) return;
+  const cycle={pending:'attended',attending:'attended',attended:'missed',missed:'pending',upcoming:'pending'};
+  const current=state.actual||'pending';
+  state.actual=cycle[current]||'attended';
+  // Update button in DOM
+  const cell=document.getElementById(`cell-${dateStr}`);
+  if(cell){
+    const btn=cell.querySelector('.actual-btn');
+    if(btn){
+      const isPastOrToday=dateStr<=todayStr();
+      const actual=state.actual;
+      let lbl,aClass;
+      if(actual==='attended'){lbl='✓ Attended';aClass='ab-attended';}
+      else if(actual==='missed'){lbl='✗ Missed';aClass='ab-missed';}
+      else if(isPastOrToday){lbl='○ Mark';aClass='ab-pending';}
+      else{lbl='· Upcoming';aClass='ab-upcoming';}
+      btn.className=`actual-btn ${aClass}`;
+      btn.textContent=lbl;
+    }
+  }
+  updateActualKPIs();
+  markUnsaved();autoSave();
+};
+
+window.toggleNote=function(dateStr,event){
+  event.stopPropagation();
+  const area=document.getElementById(`note-area-${dateStr}`);
+  if(!area) return;
+  const isOpen=area.classList.toggle('open');
+  if(isOpen){
+    const ta=area.querySelector('textarea');
+    if(ta){ta.value=dayStates[dateStr]?.note||'';ta.focus();}
+  }
+};
+
+window.saveNote=function(dateStr,value){
+  const state=dayStates[dateStr];
+  if(!state) return;
+  state.note=value;
+  const cell=document.getElementById(`cell-${dateStr}`);
+  if(cell){const btn=cell.querySelector('.note-btn');if(btn) btn.classList.toggle('has-note',!!value.trim());}
+  markUnsaved();autoSave();
+};
+
+function updateWeekCount(dateStr){
+  const d=new Date(dateStr+'T00:00:00');
+  const weekStart=fmt(startOfWeekMon(d));
+  const row=document.querySelector(`.week-row[data-week="${weekStart}"]`);
+  if(!row) return;
+  const el=row.querySelector('.week-office-count');
+  if(!el) return;
+  let cnt=0;
+  for(let dow=1;dow<=5;dow++){
+    const dayDate=new Date(weekStart+'T00:00:00');
+    dayDate.setDate(dayDate.getDate()+(dow-1));
+    const ds=fmt(dayDate);
+    if(dayStates[ds]?.type==='office') cnt++;
+  }
+  el.textContent=`${cnt} in`;
+}
+
+// ── Compliance recalculation ────────────────────────────────────
+function recalcCompliance(){
+  if(!lastResults.length) return;
+  const planned=Object.values(dayStates).filter(s=>s.type==='office').length;
+  const{required,countedDays}=lastPeriodStats;
+  const ok=planned>=required;
+  const pct=document.getElementById("pct").value;
+  const gap=planned-required;
+  document.getElementById("kpiArea").innerHTML=`
+    <div class="kpi-box"><div class="kpi-label">Counted Workdays</div><div class="kpi-value">${countedDays}</div><div class="kpi-sub">After holidays &amp; PTO</div></div>
+    <div class="kpi-box"><div class="kpi-label">Required Office Days</div><div class="kpi-value">${required}</div><div class="kpi-sub">${pct}% of counted days</div></div>
+    <div class="kpi-box ${ok?'kpi-ok':''}"><div class="kpi-label">Planned Office Days</div><div class="kpi-value">${planned}</div><div class="kpi-sub">Editable in grid below</div></div>
+    <div class="kpi-box ${ok?'kpi-ok':'kpi-warn'}"><div class="kpi-label">Compliance Gap</div><div class="kpi-value" style="font-size:22px;padding-top:4px;">${ok?'On Track':'–'+Math.abs(gap)}</div><div class="kpi-sub">${ok?`+${gap} above threshold`:`${Math.abs(gap)} day${Math.abs(gap)===1?'':'s'} short`}</div></div>
+    <div class="kpi-box" id="ytdKpi" style="display:none;"></div>`;
+  // Status badge
+  document.getElementById("statusBadge").innerHTML=`<span class="status-badge ${ok?'ok':'warn'}"><span class="status-dot"></span>${ok?'Requirement met':'Review required'}</span>`;
+}
+
+function updateActualKPIs(){
+  const states=Object.values(dayStates).filter(s=>s.type==='office');
+  const attended=states.filter(s=>s.actual==='attended').length;
+  const missed=states.filter(s=>s.actual==='missed').length;
+  const pending=states.length-attended-missed;
+  const strip=document.getElementById("actualSummary");
+  if(attended>0||missed>0){
+    strip.classList.add('visible');
+    document.getElementById("asAttended").textContent=`✓ ${attended} Attended`;
+    document.getElementById("asMissed").textContent=`✗ ${missed} Missed`;
+    document.getElementById("asPending").textContent=`○ ${pending} Pending`;
+  } else {
+    strip.classList.remove('visible');
+  }
+}
+
+// ── ICS — RRULE+EXDATE engine (Features 4, 5, 6) ───────────────
+function icsEscape(s){return String(s).replace(/\\/g,"\\\\").replace(/\n/g,"\\n").replace(/,/g,"\\,").replace(/;/g,"\\;");}
+function yyyymmdd(s){return s.replaceAll("-","");}
+
+function makeIcsRRULE(calName){
+  if(!lastResults.length) return null;
+  const includeWFH=document.getElementById("includeWfhIcs")?.checked||false;
+
+  // Period boundaries
+  const first=lastResults[0], last=lastResults[lastResults.length-1];
+  const periodStart=fmt(new Date(first.year,first.monthIdx,1));
+  const periodEnd=fmt(new Date(last.year,last.monthIdx+1,0));
+
+  const allWeekdays=getWeekdaysInRange(periodStart,periodEnd);
+  if(!allWeekdays.length) return null;
+
+  const officeDates=allWeekdays.filter(d=>dayStates[d]?.type==='office');
+  const wfhDates=allWeekdays.filter(d=>dayStates[d]?.type==='wfh');
+  if(!officeDates.length) return null;
+
+  const now=new Date();
+  const stamp=utcStamp(now);
+  const uid0=(typeof crypto!=='undefined'&&crypto.randomUUID)?crypto.randomUUID().replace(/-/g,''):now.getTime().toString(36).toUpperCase();
+  const untilDate=yyyymmdd(periodEnd);
+
+  const lines=[
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//HybridOfficePlanner//Canada//EN",
+    "CALSCALE:GREGORIAN",
+    `X-WR-CALNAME:${icsEscape(calName)}`,
+    "X-WR-CALDESC:Hybrid office schedule — import into a dedicated calendar for one-tap removal.",
+  ];
+
+  // ── Office series ──────────────────────────────────────────────
+  // All weekdays NOT in officeDates → EXDATE (Feature 5: batch-deletable series)
+  const officeSet=new Set(officeDates);
+  const officeExdates=allWeekdays.filter(d=>!officeSet.has(d));
+
+  // Feature 6: collect all per-day notes into DESCRIPTION
+  const officeNotes=officeDates
+    .filter(d=>dayStates[d]?.note?.trim())
+    .map(d=>`${d}: ${dayStates[d].note.trim()}`);
+  const officeDesc=[
+    'Your in-office schedule.',
+    officeNotes.length?'Notes:\n'+officeNotes.join('\n'):'',
+    '\nTo remove entire schedule: long-press any event → Delete All Events in Series.',
+  ].filter(Boolean).join('\n');
+
+  lines.push("BEGIN:VEVENT");
+  lines.push(`UID:office-${uid0}@officeplanner.app`);
+  lines.push(`DTSTAMP:${stamp}`);
+  lines.push(`DTSTART;VALUE=DATE:${yyyymmdd(allWeekdays[0])}`);
+  lines.push(`DTEND;VALUE=DATE:${yyyymmdd(addOneDayStr(allWeekdays[0]))}`);
+  lines.push(`RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR;UNTIL=${untilDate}`);
+  if(officeExdates.length) lines.push(`EXDATE;VALUE=DATE:${officeExdates.map(yyyymmdd).join(',')}`);
+  lines.push(`SUMMARY:🏢 In-office day`);
+  lines.push(`DESCRIPTION:${icsEscape(officeDesc)}`);
+  lines.push("END:VEVENT");
+
+  // ── WFH series — Feature 4: separate deletable WFH series ──────
+  if(includeWFH&&wfhDates.length>0){
+    const wfhSet=new Set(wfhDates);
+    const wfhExdates=allWeekdays.filter(d=>!wfhSet.has(d));
+
+    const wfhNotes=wfhDates
+      .filter(d=>dayStates[d]?.note?.trim())
+      .map(d=>`${d}: ${dayStates[d].note.trim()}`);
+    const wfhDesc=[
+      'Your work-from-home schedule.',
+      wfhNotes.length?'Notes:\n'+wfhNotes.join('\n'):'',
+      '\nTo remove: long-press any event → Delete All Events in Series.',
+    ].filter(Boolean).join('\n');
+
+    lines.push("BEGIN:VEVENT");
+    lines.push(`UID:wfh-${uid0}@officeplanner.app`);
+    lines.push(`DTSTAMP:${stamp}`);
+    lines.push(`DTSTART;VALUE=DATE:${yyyymmdd(allWeekdays[0])}`);
+    lines.push(`DTEND;VALUE=DATE:${yyyymmdd(addOneDayStr(allWeekdays[0]))}`);
+    lines.push(`RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR;UNTIL=${untilDate}`);
+    if(wfhExdates.length) lines.push(`EXDATE;VALUE=DATE:${wfhExdates.map(yyyymmdd).join(',')}`);
+    lines.push(`SUMMARY:🏠 Work from home`);
+    lines.push(`DESCRIPTION:${icsEscape(wfhDesc)}`);
+    lines.push("END:VEVENT");
+  }
+
+  lines.push("END:VCALENDAR");
+  return lines.join("\r\n");
+}
+
+function downloadIcs(){
+  if(!isPro) return;
+  const officeDays=Object.values(dayStates).filter(s=>s.type==='office').length;
+  if(!officeDays) return;
+
+  const province=document.getElementById("province").value;
+  let calName;
+  if(planMode==="monthly"){
+    const y=document.getElementById("year").value,m=Number(document.getElementById("month").value),p=document.getElementById("pct").value;
+    calName=`Hybrid Office Plan — ${monthNames[m]} ${y} (${p}%) [${province}]`;
+  } else {
+    const y=document.getElementById("yearQ").value,q=Number(document.getElementById("quarter").value)+1,p=document.getElementById("pct").value;
+    calName=`Hybrid Office Plan — Q${q} ${y} (${p}%) [${province}]`;
+  }
+
+  const icsContent=makeIcsRRULE(calName);
+  if(!icsContent) return;
+
+  const blob=new Blob([icsContent],{type:"text/calendar;charset=utf-8"});
+  const url=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=url;a.download=`hybrid-office-plan-${calName.replace(/[^a-z0-9]+/gi,"-").toLowerCase()}.ics`;
+  document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+
+  // Show one-tap tip after download
+  document.getElementById("icsTip").classList.add("visible");
+}
+
+// ── localStorage ────────────────────────────────────────────────
+function saveState(){ autoSave(); } // alias — autoSave is the real impl above
+function loadState(){try{const r=localStorage.getItem(STORAGE_KEY);return r?JSON.parse(r):null;}catch{return null;}}
+function applyState(s){
+  if(!s) return;
+  const set=(id,v)=>{if(v!=null) document.getElementById(id).value=v;};
+  const chk=(id,v)=>{if(v!=null) document.getElementById(id).checked=v;};
+  set("year",s.year);set("month",s.month);set("yearQ",s.yearQ);set("quarter",s.quarter);
+  set("pct",s.pct);set("basis",s.basis);set("pattern",s.pattern);
+  set("province",s.province||CONFIG.province);
+  chk("observed",s.observed);
+  if(s.extraExclude) document.getElementById("extraExclude").value=s.extraExclude;
+  if(Array.isArray(s.allowed)){allowed.clear();s.allowed.forEach(v=>allowed.add(Number(v)));}
+  if(Array.isArray(s.anchorDays)){anchorDays.clear();s.anchorDays.forEach(v=>anchorDays.add(Number(v)));}
+  if(s.planMode){planMode=s.planMode;updateModeUI();}
+  if(s.theme) applyTheme(s.theme);
+  if(typeof s.isPro==="boolean") applyTier(s.isPro);
+  if(s.removedHolidays){removedHolidays.clear();s.removedHolidays.forEach(d=>removedHolidays.add(d));}
+  if(s.customHolidays) customHolidays=s.customHolidays;
+  if(s.lastResultsMeta) lastResults=s.lastResultsMeta;
+  if(s.lastPeriodStats) lastPeriodStats=s.lastPeriodStats;
+  if(s.periodKey) lastPeriodKey=s.periodKey;
+  // Feature 1: restore allPeriodStates with migration
+  if(s.allPeriodStates&&Object.keys(s.allPeriodStates).length){
+    // Detect v9 format: flat period keys at top level
+    const keys=Object.keys(s.allPeriodStates);
+    const isV9=keys.some(k=>k.startsWith('monthly:')||k.startsWith('quarterly:'));
+    if(isV9){
+      // Migrate: lift flat v9 states into __default__ namespace
+      allPeriodStates[DEFAULT_PROFILE]=s.allPeriodStates;
+    } else {
+      allPeriodStates=s.allPeriodStates;
+    }
+  } else if(s.dayStates&&s.periodKey&&Object.keys(s.dayStates).length){
+    // Migrate v7/v8: flat dayStates into default namespace
+    if(!allPeriodStates[DEFAULT_PROFILE]) allPeriodStates[DEFAULT_PROFILE]={};
+    allPeriodStates[DEFAULT_PROFILE][s.periodKey]={
+      dayStates:s.dayStates,lastPeriodStats:s.lastPeriodStats||{countedDays:0,required:0},
+      lastResultsMeta:s.lastResultsMeta||[],pct:s.pct,pattern:s.pattern,
+      basis:s.basis,extraExclude:s.extraExclude||'',observed:s.observed,
+    };
+  }
+  // Feature 5: restore settings profiles
+  if(s.settingsProfiles) {settingsProfiles=s.settingsProfiles;renderProfileSelect("");}
+  // Active profile name
+  if(s.activeProfileName) activeProfileName=s.activeProfileName;
+}
+
+// ── Holiday list UI (Features 4 & 5: editable list) ─────────────
+function buildHolidayUI(y){
+  const province=isPro?document.getElementById("province").value:"ON";
+  const inclObs=document.getElementById("observed").checked;
+
+  // Auto holidays filtered by removedHolidays
+  const rawHols=getHolidays(province,y,inclObs);
+  const filtered=rawHols.filter(h=>!removedHolidays.has(fmt(h.date)));
+
+  // Custom holidays for this year
+  const custom=customHolidays
+    .map(h=>({name:h.name,date:new Date(h.date+'T00:00:00'),custom:true,dateStr:h.date}))
+    .filter(h=>h.dateStr.startsWith(String(y)));
+
+  const allHols=[...filtered.map(h=>({...h,custom:false,dateStr:fmt(h.date)})),...custom]
+    .sort((a,b)=>a.date-b.date);
+
+  // Render interactive rows
+  const listEl=document.getElementById("holidayList");
+  if(!allHols.length){
+    listEl.innerHTML='<div style="color:var(--text-subtle);font-style:italic;padding:4px 0;">No holidays for this period.</div>';
+  } else {
+    listEl.innerHTML=allHols.map(h=>{
+      const ds=h.dateStr;
+      const removeCall=h.custom?`removeCustomHoliday('${ds}')`:`removeHoliday('${ds}')`;
+      const nameClass=h.custom?'hol-name hol-custom':'hol-name';
+      const suffix=h.custom?' ✦':'';
+      return `<div class="hol-row">
+        <span class="hol-date">${ds}</span>
+        <span class="${nameClass}">${h.name}${suffix}</span>
+        <button class="hol-remove" onclick="${removeCall}" title="Remove">✕</button>
+      </div>`;
+    }).join('');
+  }
+
+  // Restore link visibility
+  const rl=document.getElementById("holidayRestoreLink");
+  if(rl) rl.classList.toggle('visible',removedHolidays.size>0);
+
+  updateProvinceLabels(province);
+  return new Set(allHols.map(h=>h.dateStr));
+}
+
+// ── Holiday edit globals (Features 4 & 5) ───────────────────────
+window.removeHoliday=function(dateStr){
+  removedHolidays.add(dateStr);
+  refreshHolidayListAndApply(dateStr,'wfh');
+  markUnsaved();autoSave();
+};
+window.removeCustomHoliday=function(dateStr){
+  customHolidays=customHolidays.filter(h=>h.date!==dateStr);
+  refreshHolidayListAndApply(dateStr,'wfh');
+  markUnsaved();autoSave();
+};
+window.restoreDefaultHolidays=function(event){
+  event.preventDefault();
+  removedHolidays.clear();
+  refreshHolidayList();
+  markUnsaved();autoSave();
+};
+
+function refreshHolidayList(){
+  const year=planMode==='monthly'
+    ?Number(document.getElementById("year").value)
+    :Number(document.getElementById("yearQ").value);
+  if(!isNaN(year)&&year>=2020) buildHolidayUI(year);
+}
+
+function refreshHolidayListAndApply(dateStr,newType){
+  refreshHolidayList();
+  // Patch dayStates if date is in current plan
+  if(dayStates[dateStr]){
+    dayStates[dateStr].type=newType;
+    dayStates[dateStr].source='generated';
+    dayStates[dateStr].label=newType==='holiday'?document.getElementById("customHolName")?.value||'Custom':'WFH';
+    document.getElementById("output").innerHTML=renderGrid();
+    recalcCompliance();
+    updateActualKPIs();
+  }
+}
+
+function addCustomHoliday(){
+  const dateVal=document.getElementById("customHolDate").value;
+  const nameVal=document.getElementById("customHolName").value.trim();
+  if(!dateVal||!nameVal){
+    if(!dateVal) document.getElementById("customHolDate").focus();
+    else document.getElementById("customHolName").focus();
+    return;
+  }
+  if(customHolidays.some(h=>h.date===dateVal)){
+    // Update existing
+    customHolidays=customHolidays.map(h=>h.date===dateVal?{date:dateVal,name:nameVal}:h);
+  } else {
+    customHolidays.push({date:dateVal,name:nameVal});
+  }
+  document.getElementById("customHolDate").value="";
+  document.getElementById("customHolName").value="";
+  // Apply to dayStates
+  if(dayStates[dateVal]){
+    dayStates[dateVal].type='holiday';
+    dayStates[dateVal].source='system';
+    dayStates[dateVal].label=nameVal;
+    document.getElementById("output").innerHTML=renderGrid();
+    recalcCompliance();
+    updateActualKPIs();
+  }
+  refreshHolidayList();
+  markUnsaved();autoSave();
+}
+
+// autoSave: session continuity without resetting the explicit save indicator
+function autoSave(){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify({
+    year:document.getElementById("year").value,
+    month:document.getElementById("month").value,
+    yearQ:document.getElementById("yearQ").value,
+    quarter:document.getElementById("quarter").value,
+    pct:document.getElementById("pct").value,
+    basis:document.getElementById("basis").value,
+    pattern:document.getElementById("pattern").value,
+    observed:document.getElementById("observed").checked,
+    extraExclude:document.getElementById("extraExclude").value,
+    province:document.getElementById("province").value,
+    allowed:Array.from(allowed),
+    anchorDays:Array.from(anchorDays),
+    planMode,isPro,
+    theme:document.documentElement.getAttribute("data-theme")||"light",
+    periodKey:lastPeriodKey,
+    lastResultsMeta:lastResults.map(r=>({year:r.year,monthIdx:r.monthIdx})),
+    removedHolidays:Array.from(removedHolidays),
+    customHolidays,
+    dayStates,
+    lastPeriodStats,
+    allPeriodStates,
+    settingsProfiles,
+    activeProfileName,
+    savedTime:document.getElementById("headerSaveStatus").textContent.replace("Saved ",""),
+  }));}catch(_){}
+}
+
+function updateProvinceLabels(province){
+  const info=PROVINCE_LABELS[province]||PROVINCE_LABELS.ON;
+  document.getElementById("brandSub").textContent=info.sub;
+  document.getElementById("printSub").textContent=info.sub;
+  document.getElementById("footerJurisdiction").textContent=info.label;
+}
+
+// ── Theme ───────────────────────────────────────────────────────
+function applyTheme(theme){
+  document.documentElement.setAttribute("data-theme",theme);
+  const isDark=theme==="dark";
+  document.getElementById("themeToggle").checked=isDark;
+  document.getElementById("lblLight").classList.toggle("on",!isDark);
+  document.getElementById("lblDark").classList.toggle("on",isDark);
+}
+
+// ── Tier ────────────────────────────────────────────────────────
+function applyTier(pro){
+  isPro=pro;
+  document.body.classList.toggle("tier-free",!pro);
+  document.getElementById("tierToggle").checked=pro;
+  document.getElementById("lblFree").classList.toggle("on",!pro);
+  document.getElementById("lblPro").classList.toggle("on",pro);
+  document.getElementById("headerProPill").classList.toggle("visible",pro);
+  const provSel=document.getElementById("province");
+  provSel.disabled=!pro;
+  if(!pro){provSel.value="ON";updateProvinceLabels("ON");}
+  const icsBtn=document.getElementById("downloadIcs");
+  icsBtn.disabled=!pro||Object.values(dayStates).filter(s=>s.type==='office').length===0;
+  document.getElementById("modeQuarterly").disabled=!pro;
+  if(!pro&&planMode==="quarterly"){planMode="monthly";updateModeUI();run();}
+  document.getElementById("extraExclude").disabled=!pro;
+}
+
+// ── Mode toggle ─────────────────────────────────────────────────
+function updateModeUI(){
+  const m=planMode==="monthly";
+  document.getElementById("monthlyPickers").style.display=m?"":"none";
+  document.getElementById("quarterlyPickers").style.display=m?"none":"";
+  document.getElementById("modeMonthly").classList.toggle("active",m);
+  document.getElementById("modeQuarterly").classList.toggle("active",!m);
+}
+
+// ── Validation ──────────────────────────────────────────────────
+function validateYear(inputId,errorId){
+  const v=Number(document.getElementById(inputId).value);
+  const ok=Number.isFinite(v)&&v>=2020&&v<=2100;
+  document.getElementById(errorId).classList.toggle("visible",!ok);
+  document.getElementById(inputId).classList.toggle("field-error",!ok);
+  return ok?v:null;
+}
+
+// ── Main run (always generates fresh schedule) ───────────────────
+function run(){
+  const pct=Number(document.getElementById("pct").value);
+  const basis=document.getElementById("basis").value;
+  const patternArr=parsePattern(document.getElementById("pattern").value);
+  if(!Number.isFinite(pct)||pct<=0||pct>100) return;
+  if(patternArr.every(n=>n===0)) return;
+  if(allowed.size===0) return;
+  const extraText=isPro?document.getElementById("extraExclude").value:'';
+  const ptoLabels=buildPtoLabels(extraText);
+  const extra=new Set(ptoLabels.keys());
+
+  if(planMode==="monthly"){
+    const year=validateYear("year","yearError");if(!year) return;
+    const monthIdx=Number(document.getElementById("month").value);
+    const hols=buildHolidayUI(year);
+    const excl=new Set([...hols,...extra]);
+    const result=generatePlan(year,monthIdx,pct,patternArr,basis,excl,allowed,anchorDays);
+    lastResults=[result];
+    lastPeriodStats={countedDays:result.countedDays,required:result.required};
+    initDayStates([result],hols,extra,ptoLabels);
+  } else {
+    const year=validateYear("yearQ","yearQError");if(!year) return;
+    const qIdx=Number(document.getElementById("quarter").value);
+    const hols=buildHolidayUI(year);
+    const excl=new Set([...hols,...extra]);
+    const results=[0,1,2].map(i=>generatePlan(year,qIdx*3+i,pct,patternArr,basis,excl,allowed,anchorDays));
+    lastResults=results;
+    lastPeriodStats={countedDays:results.reduce((s,r)=>s+r.countedDays,0),required:results.reduce((s,r)=>s+r.required,0)};
+    initDayStates(results,hols,extra,ptoLabels);
+  }
+
+  lastPeriodKey=getPeriodKey();
+  lastProfileKey=activeProfileName; // data ownership: this profile generated dayStates
+  setResultsTitle();
+  document.getElementById("periodBanner").classList.remove("visible");
+  document.getElementById("output").innerHTML=renderGrid();
+  recalcCompliance();
+  updateActualKPIs();
+  document.getElementById("downloadIcs").disabled=!isPro||Object.values(dayStates).filter(s=>s.type==='office').length===0;
+  // Save freshly generated plan to per-period store, update YAG + YTD
+  savePeriodState(lastPeriodKey);
+  renderYearGrid();
+  renderYTDKpi();
+  renderProfileBadge();
+  markUnsaved();
+  autoSave();
+}
+
+// ── Day chips ───────────────────────────────────────────────────
+function renderDayChips(){
+  const c=document.getElementById("dayChips");c.innerHTML="";
+  DOW.forEach((name,i)=>{
+    const lbl=document.createElement("label");lbl.className="day-chip-label";
+    const cb=document.createElement("input");cb.type="checkbox";cb.checked=allowed.has(i);
+    cb.addEventListener("change",()=>{if(cb.checked) allowed.add(i);else allowed.delete(i);debouncedRun();});
+    const inner=document.createElement("div");inner.className="day-chip-inner";inner.textContent=name;
+    lbl.appendChild(cb);lbl.appendChild(inner);c.appendChild(lbl);
+  });
+}
+
+function renderAnchorChips(){
+  const c=document.getElementById("anchorChips");c.innerHTML="";
+  for(let i=1;i<=5;i++){
+    const lbl=document.createElement("label");lbl.className="anchor-chip-label";
+    const cb=document.createElement("input");cb.type="checkbox";cb.checked=anchorDays.has(i);
+    cb.addEventListener("change",()=>{if(cb.checked) anchorDays.add(i);else anchorDays.delete(i);debouncedRun();});
+    const inner=document.createElement("div");inner.className="anchor-chip-inner";inner.textContent=DOW[i];
+    lbl.appendChild(cb);lbl.appendChild(inner);c.appendChild(lbl);
+  }
+}
+
+// ── applyConfig ─────────────────────────────────────────────────
+function applyConfig(){
+  const root=document.documentElement;
+  root.style.setProperty("--accent",CONFIG.brandColour);
+  root.style.setProperty("--accent-hover",CONFIG.brandColour);
+  root.style.setProperty("--accent-light",hexToAlpha(CONFIG.brandColour,0.1));
+  const iconEl=document.getElementById("brandIcon");
+  iconEl.style.background=CONFIG.brandColour;
+  iconEl.style.boxShadow=`0 2px 8px ${hexToAlpha(CONFIG.brandColour,0.4)}`;
+  if(CONFIG.logoBase64){iconEl.innerHTML=`<img src="${CONFIG.logoBase64}" alt="Logo" />`;}
+  else{iconEl.textContent=CONFIG.logoEmoji||"🏢";}
+  document.getElementById("brandName").textContent=CONFIG.appName||"Hybrid Office Planner";
+  document.getElementById("headerTag").textContent=CONFIG.companyName||"Company Edition";
+  document.getElementById("printTitle").textContent=CONFIG.appName||"Hybrid Office Planner";
+  document.title=`${CONFIG.appName||"Hybrid Office Planner"}${CONFIG.companyName?" — "+CONFIG.companyName:""}`;
+}
+function hexToAlpha(hex,alpha){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `rgba(${r},${g},${b},${alpha})`;}
+function debouncedRun(){clearTimeout(runTimer);runTimer=setTimeout(run,350);}
+
+// ══════════════════════════════════════════════════════════════════
+//  BACKUP & RESTORE — AES-256-GCM + PBKDF2 200k iterations
+// ══════════════════════════════════════════════════════════════════
+
+let pendingImportState  = null;   // holds decrypted state between preview + confirm
+let pendingImportIsPlain = false;
+let loadedFileData      = null;   // raw parsed JSON from dropped/selected file
+
+// ── Feature 6: Passphrase strength ─────────────────────────────
+function measureStrength(p){
+  if(!p) return {pct:0,label:'',color:'transparent'};
+  let s=0;
+  if(p.length>=8)  s++;
+  if(p.length>=12) s++;
+  if(p.length>=16) s++;
+  if(/[a-z]/.test(p)) s+=0.5;
+  if(/[A-Z]/.test(p)) s+=0.5;
+  if(/\d/.test(p))    s+=0.5;
+  if(/[^a-zA-Z0-9]/.test(p)) s+=0.5;
+  const weak=['password','123456','qwerty','letmein','welcome','admin','abc123'];
+  if(weak.some(w=>p.toLowerCase().includes(w))) s=Math.min(s,1);
+  if(s<1.5) return {pct:22, label:'Weak',   color:'#DC2626'};
+  if(s<2.5) return {pct:50, label:'Fair',   color:'#F59E0B'};
+  if(s<3.5) return {pct:75, label:'Good',   color:'#2563EB'};
+  return           {pct:100,label:'Strong', color:'#059669'};
+}
+
+// ── Feature 1: Crypto primitives ────────────────────────────────
+async function deriveKey(passphrase,salt){
+  const enc=new TextEncoder();
+  const km=await crypto.subtle.importKey("raw",enc.encode(passphrase),"PBKDF2",false,["deriveKey"]);
+  return crypto.subtle.deriveKey(
+    {name:"PBKDF2",salt,iterations:200000,hash:"SHA-256"},
+    km, {name:"AES-GCM",length:256}, false, ["encrypt","decrypt"]
+  );
+}
+function arrToB64(arr){return btoa(String.fromCharCode(...(arr instanceof Uint8Array?arr:new Uint8Array(arr))));}
+function b64ToArr(s){return Uint8Array.from(atob(s),c=>c.charCodeAt(0));}
+
+async function encryptPayload(obj,pass){
+  const salt=crypto.getRandomValues(new Uint8Array(16));
+  const iv  =crypto.getRandomValues(new Uint8Array(12));
+  const key =await deriveKey(pass,salt);
+  const ct  =await crypto.subtle.encrypt({name:"AES-GCM",iv},key,new TextEncoder().encode(JSON.stringify(obj)));
+  return {v:"hop/1",salt:arrToB64(salt),iv:arrToB64(iv),data:arrToB64(ct)};
+}
+async function decryptPayload(hop,pass){
+  const key=await deriveKey(pass,b64ToArr(hop.salt));
+  const pt =await crypto.subtle.decrypt({name:"AES-GCM",iv:b64ToArr(hop.iv)},key,b64ToArr(hop.data));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+
+// ── Build export payloads ────────────────────────────────────────
+function buildEncPayload(){
+  return {
+    exportedAt: new Date().toISOString(),
+    appVersion: "8.0",
+    periodKey: lastPeriodKey,
+    planMode,
+    year:   document.getElementById("year").value,
+    month:  document.getElementById("month").value,
+    yearQ:  document.getElementById("yearQ").value,
+    quarter:document.getElementById("quarter").value,
+    pct:    document.getElementById("pct").value,
+    basis:  document.getElementById("basis").value,
+    pattern:document.getElementById("pattern").value,
+    observed: document.getElementById("observed").checked,
+    province: document.getElementById("province").value,
+    extraExclude: document.getElementById("extraExclude").value,
+    allowed: Array.from(allowed),
+    anchorDays: Array.from(anchorDays),
+    removedHolidays: Array.from(removedHolidays),
+    customHolidays,
+    dayStates,
+    lastPeriodStats,
+    lastResultsMeta: lastResults.map(r=>({year:r.year,monthIdx:r.monthIdx})),
+    isPro,
+    allPeriodStates: (document.getElementById("exportAllPeriods")?.checked) ? allPeriodStates : {},
+    settingsProfiles,
+    activeProfileName,
+  };
+}
+function buildPlainPayload(){
+  const ds=dayStates;
+  const province=isPro?document.getElementById("province").value:"ON";
+  return {
+    v:"hop-plain/1",
+    exportedAt: new Date().toISOString().split('T')[0],
+    appVersion: "8.0",
+    period: document.getElementById("resultsTitle").textContent,
+    periodKey: lastPeriodKey,
+    province,
+    pct: document.getElementById("pct").value,
+    requiredOfficeDays: lastPeriodStats.required,
+    countedWorkdays: lastPeriodStats.countedDays,
+    officeDays:   Object.entries(ds).filter(([,s])=>s.type==='office').map(([d])=>d).sort(),
+    wfhDays:      Object.entries(ds).filter(([,s])=>s.type==='wfh').map(([d])=>d).sort(),
+    holidayDays:  Object.entries(ds).filter(([,s])=>s.type==='holiday').map(([d,s])=>({date:d,name:s.label||'Holiday'})),
+    vacationDays: Object.entries(ds).filter(([,s])=>['vacation','pto','sick','conference','custom'].includes(s.type)).map(([d,s])=>({date:d,label:s.label||s.type})),
+  };
+}
+
+// ── Feature 2: Export functions ──────────────────────────────────
+async function exportEncrypted(){
+  const pass=document.getElementById("exportPassphrase").value;
+  const conf=document.getElementById("exportPassConfirm").value;
+  const errEl=document.getElementById("exportPassError");
+  errEl.classList.remove("visible");
+  if(!pass){document.getElementById("exportPassphrase").focus();return;}
+  if(pass!==conf){errEl.classList.add("visible");return;}
+  if(!Object.keys(dayStates).length){alert("Generate a plan first before creating a backup.");return;}
+  const str=measureStrength(pass);
+  if(str.pct<50&&!confirm("Your passphrase is weak and provides limited protection. Continue anyway?")) return;
+
+  const btn=document.getElementById("exportEncryptedBtn");
+  btn.textContent="Encrypting…";btn.disabled=true;
+  try{
+    const enc=await encryptPayload(buildEncPayload(),pass);
+    const blob=new Blob([JSON.stringify(enc)],{type:"application/json"});
+    const url=URL.createObjectURL(blob),a=document.createElement("a");
+    const period=lastPeriodKey.replace(/[^a-z0-9]/gi,"-");
+    const stamp=new Date().toISOString().split("T")[0];
+    a.href=url;a.download=`hybrid-plan-${period}-${stamp}.hop`;
+    document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+    btn.textContent="✓ Downloaded";
+    setTimeout(()=>{btn.textContent="⬇ Download Encrypted Backup (.hop)";btn.disabled=false;},2500);
+  }catch(err){
+    btn.textContent="⬇ Download Encrypted Backup (.hop)";btn.disabled=false;
+    alert("Encryption error: "+err.message);
+  }
+}
+
+function exportPlain(){
+  if(!Object.keys(dayStates).length){alert("Generate a plan first before exporting.");return;}
+  const blob=new Blob([JSON.stringify(buildPlainPayload(),null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob),a=document.createElement("a");
+  const period=lastPeriodKey.replace(/[^a-z0-9]/gi,"-");
+  const stamp=new Date().toISOString().split("T")[0];
+  a.href=url;a.download=`hybrid-schedule-${period}-${stamp}.json`;
+  document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+}
+
+// ── Feature 3: Import — file loading ────────────────────────────
+function handleFileLoaded(text){
+  try{
+    const parsed=JSON.parse(text);
+    loadedFileData=parsed;
+    const isEnc=parsed.v==="hop/1";
+    const isPlain=typeof parsed.v==="string"&&parsed.v.startsWith("hop-plain/");
+    const dzl=document.getElementById("dzLoaded");
+    const ipf=document.getElementById("importPassField");
+    const idb=document.getElementById("importDecryptBtn");
+    if(!isEnc&&!isPlain){
+      dzl.textContent="⚠ Unrecognised file format. Use a .hop or .json backup file.";
+      dzl.className="dz-loaded err";dzl.style.display="block";
+      ipf.style.display="none";idb.style.display="none"; return;
+    }
+    dzl.textContent=isEnc?"🔒 Encrypted backup loaded":"📄 Plain schedule loaded";
+    dzl.className="dz-loaded";dzl.style.display="block";
+    pendingImportIsPlain=isPlain;
+    if(isEnc){
+      ipf.style.display="block";
+      idb.textContent="Decrypt & Preview";
+    } else {
+      ipf.style.display="none";
+      idb.textContent="Preview & Import";
+    }
+    idb.style.display="inline-flex";
+    document.getElementById("importPassError").classList.remove("visible");
+  }catch(_){
+    const dzl=document.getElementById("dzLoaded");
+    dzl.textContent="⚠ Could not read file.";dzl.className="dz-loaded err";dzl.style.display="block";
+  }
+}
+
+// ── Feature 4: Decrypt + preview ────────────────────────────────
+async function decryptAndPreview(){
+  if(!loadedFileData) return;
+  const errEl=document.getElementById("importPassError");
+  errEl.classList.remove("visible");
+  const btn=document.getElementById("importDecryptBtn");
+  btn.disabled=true;btn.textContent=pendingImportIsPlain?"Loading…":"Decrypting…";
+  try{
+    let state;
+    if(pendingImportIsPlain){
+      state=reconstructFromPlain(loadedFileData);
+    } else {
+      const pass=document.getElementById("importPassphrase").value;
+      if(!pass){document.getElementById("importPassphrase").focus();btn.disabled=false;btn.textContent="Decrypt & Preview";return;}
+      state=await decryptPayload(loadedFileData,pass);
+    }
+    pendingImportState=state;
+    showImportPreview(state);
+  }catch(_){
+    errEl.classList.add("visible");
+  }finally{
+    btn.disabled=false;
+    btn.textContent=pendingImportIsPlain?"Preview & Import":"Decrypt & Preview";
+  }
+}
+
+// Reconstruct minimal state from plain JSON (no notes/attendance)
+function reconstructFromPlain(p){
+  const ds={};
+  const offSet=new Set(p.officeDays||[]);
+  const wfhSet=new Set(p.wfhDays||[]);
+  const holMap=new Map((p.holidayDays||[]).map(h=>[h.date,h.name]));
+  const vacList=p.vacationDays||[];
+  const all=new Set([...offSet,...wfhSet,...holMap.keys(),...vacList.map(v=>v.date)]);
+  for(const d of all){
+    let type,label;
+    if(holMap.has(d)){type='holiday';label=holMap.get(d);}
+    else{const v=vacList.find(x=>x.date===d);if(v){label=v.label||'Vacation';type=classifyLabel(label);}
+    else if(offSet.has(d)){type='office';label='Office';}
+    else{type='wfh';label='WFH';}}
+    ds[d]={type,source:'generated',label,actual:'pending',note:''};
+  }
+  // Parse period from periodKey e.g. "monthly:2026-05"
+  let yr=document.getElementById("year").value,mo=document.getElementById("month").value;
+  if(p.periodKey&&p.periodKey.startsWith("monthly:")){
+    const parts=p.periodKey.split(":")[1].split("-");
+    yr=parts[0]; mo=String(Number(parts[1])-1);
+  }
+  return {
+    planMode:"monthly",year:yr,month:mo,
+    yearQ:document.getElementById("yearQ").value,quarter:document.getElementById("quarter").value,
+    pct:p.pct||document.getElementById("pct").value,
+    basis:document.getElementById("basis").value,pattern:document.getElementById("pattern").value,
+    observed:document.getElementById("observed").checked,
+    province:p.province||"ON",extraExclude:"",
+    allowed:Array.from(allowed),anchorDays:Array.from(anchorDays),
+    removedHolidays:[],customHolidays:[],
+    dayStates:ds,
+    lastPeriodStats:{countedDays:p.countedWorkdays||0,required:p.requiredOfficeDays||0},
+    lastResultsMeta:[],periodKey:p.periodKey||"",
+    exportedAt:p.exportedAt,isPlainImport:true,
+  };
+}
+
+// ── Feature 5: Import preview modal ─────────────────────────────
+function showImportPreview(state){
+  const ds=state.dayStates||{};
+  const vals=Object.values(ds);
+  const office   =vals.filter(s=>s.type==='office').length;
+  const wfh      =vals.filter(s=>s.type==='wfh').length;
+  const hol      =vals.filter(s=>s.type==='holiday').length;
+  const away     =vals.filter(s=>['vacation','pto','sick','conference','custom'].includes(s.type)).length;
+  const notes    =vals.filter(s=>s.note?.trim()).length;
+  const attended =vals.filter(s=>s.actual==='attended').length;
+
+  let periodLabel=state.periodKey||'';
+  if(periodLabel.startsWith('monthly:')){
+    const [yr,mm]=periodLabel.replace('monthly:','').split('-');
+    periodLabel=`${monthNames[Number(mm)-1]} ${yr}`;
+  } else if(periodLabel.startsWith('quarterly:')){
+    periodLabel=periodLabel.replace('quarterly:','').replace('-','  ');
+  }
+
+  const rows=[
+    ['Period',    periodLabel||'Unknown'],
+    ['Office days', String(office)],
+    ['WFH days',    String(wfh)],
+    hol    ?['Holidays',    String(hol)  +' days'] :null,
+    away   ?['Away days',   String(away) +' days'] :null,
+    notes  ?['Notes',       String(notes)+' days'] :null,
+    attended?['Attended',   String(attended)+' days']:null,
+    state.exportedAt?['Exported', String(state.exportedAt).split('T')[0]]:null,
+  ].filter(Boolean);
+
+  let html='<div class="import-preview">'
+    +rows.map(([k,v])=>`<div class="preview-row"><span class="preview-key">${k}</span><span class="preview-val">${v}</span></div>`).join('')
+    +'</div>';
+
+  if(Object.keys(dayStates).length){
+    const curLabel=lastPeriodKey?lastPeriodKey.replace('monthly:','').replace('quarterly:',''):'current plan';
+    html+=`<div class="preview-warn">⚠ Your current <strong>${curLabel}</strong> schedule will be replaced. Export a backup now if you need to preserve it.</div>`;
+  }
+  if(state.isPlainImport){
+    html+=`<div class="preview-plain-note">Plain import — notes and attendance marks are not included.</div>`;
+  }
+
+  document.getElementById("importPreviewContent").innerHTML=html;
+  document.getElementById("backupModal").classList.remove("open");
+  document.getElementById("importPreviewModal").classList.add("open");
+}
+
+// ── Feature 7: Apply imported state (auto-period switch) ─────────
+async function applyImportedState(){
+  const s=pendingImportState;if(!s) return;
+  const set=(id,v)=>{const el=document.getElementById(id);if(el&&v!=null) el.value=v;};
+  const chk=(id,v)=>{const el=document.getElementById(id);if(el&&v!=null) el.checked=v;};
+  set("year",s.year);set("month",s.month);
+  set("yearQ",s.yearQ);set("quarter",s.quarter);
+  set("pct",s.pct);set("basis",s.basis);set("pattern",s.pattern);
+  set("province",s.province||"ON");
+  chk("observed",s.observed);
+  if(s.extraExclude!=null) set("extraExclude",s.extraExclude);
+  if(Array.isArray(s.allowed))    {allowed.clear();   s.allowed.forEach(v=>allowed.add(Number(v)));}
+  if(Array.isArray(s.anchorDays)) {anchorDays.clear();s.anchorDays.forEach(v=>anchorDays.add(Number(v)));}
+  if(s.removedHolidays) {removedHolidays.clear();s.removedHolidays.forEach(d=>removedHolidays.add(d));}
+  if(s.customHolidays)  customHolidays=s.customHolidays;
+  if(s.planMode) {planMode=s.planMode;updateModeUI();}
+  if(s.dayStates)       dayStates      =s.dayStates;
+  if(s.lastPeriodStats) lastPeriodStats=s.lastPeriodStats;
+  if(s.lastResultsMeta) lastResults    =s.lastResultsMeta;
+  if(s.periodKey)       lastPeriodKey  =s.periodKey;
+  // Feature 1: merge imported period states (handle both formats)
+  if(s.allPeriodStates){
+    const keys=Object.keys(s.allPeriodStates);
+    const isV9=keys.some(k=>k.startsWith('monthly:')||k.startsWith('quarterly:'));
+    if(isV9){
+      if(!allPeriodStates[DEFAULT_PROFILE]) allPeriodStates[DEFAULT_PROFILE]={};
+      Object.assign(allPeriodStates[DEFAULT_PROFILE],s.allPeriodStates);
+    } else {
+      for(const [prof,store] of Object.entries(s.allPeriodStates)){
+        if(!allPeriodStates[prof]) allPeriodStates[prof]={};
+        Object.assign(allPeriodStates[prof],store);
+      }
+    }
+  }
+  if(s.dayStates&&s.periodKey){
+    if(!allPeriodStates[DEFAULT_PROFILE]) allPeriodStates[DEFAULT_PROFILE]={};
+    allPeriodStates[DEFAULT_PROFILE][s.periodKey]={dayStates:s.dayStates,lastPeriodStats:s.lastPeriodStats||{countedDays:0,required:0},lastResultsMeta:s.lastResultsMeta||[]};
+  }
+  if(s.activeProfileName) activeProfileName=s.activeProfileName;
+  // Feature 5: merge profiles
+  if(s.settingsProfiles) Object.assign(settingsProfiles,s.settingsProfiles);
+  renderDayChips();renderAnchorChips();renderProfileSelect("");
+  const year=planMode==='monthly'
+    ?Number(document.getElementById("year").value)
+    :Number(document.getElementById("yearQ").value);
+  buildHolidayUI(year);
+  setResultsTitle();
+  document.getElementById("periodBanner").classList.remove("visible");
+  document.getElementById("output").innerHTML=renderGrid();
+  recalcCompliance();updateActualKPIs();
+  renderYearGrid();renderYTDKpi();
+  document.getElementById("downloadIcs").disabled=!isPro||Object.values(dayStates).filter(s=>s.type==='office').length===0;
+  document.getElementById("importPreviewModal").classList.remove("open");
+  document.getElementById("backupModal").classList.remove("open");
+  performSave();
+  const status=document.getElementById("headerSaveStatus");
+  if(status){
+    status.textContent="✓ Import successful";status.className="header-save-status saved";
+    setTimeout(()=>{if(status.textContent==="✓ Import successful"){status.textContent="";status.className="header-save-status";}},4500);
+  }
+  pendingImportState=null;loadedFileData=null;
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  FEATURE 1: PER-PERIOD STATE STORAGE
+// ══════════════════════════════════════════════════════════════════
+
+function savePeriodState(key){
+  if(!key) return;
+  // Guard 1: never save an empty schedule — prevents phantom store entries
+  if(!Object.keys(dayStates).length) return;
+  // Guard 2: ownership — only the profile that produced dayStates may write to its store
+  if(lastProfileKey!==activeProfileName) return;
+  const store=getProfileStore();
+  store[key]={
+    dayStates:JSON.parse(JSON.stringify(dayStates)),
+    lastPeriodStats:{...lastPeriodStats},
+    lastResultsMeta:lastResults.map(r=>({year:r.year,monthIdx:r.monthIdx})),
+    pct:document.getElementById("pct").value,
+    pattern:document.getElementById("pattern").value,
+    basis:document.getElementById("basis").value,
+    extraExclude:document.getElementById("extraExclude").value,
+    observed:document.getElementById("observed").checked,
+  };
+}
+
+function restorePeriodState(key){
+  const store=getProfileStore();
+  const s=store[key];
+  if(!s||!s.dayStates||!Object.keys(s.dayStates).length) return false;
+  if(s.pct)     document.getElementById("pct").value=s.pct;
+  if(s.pattern) document.getElementById("pattern").value=s.pattern;
+  if(s.basis)   document.getElementById("basis").value=s.basis;
+  if(s.extraExclude!=null) document.getElementById("extraExclude").value=s.extraExclude;
+  if(s.observed!=null) document.getElementById("observed").checked=s.observed;
+  dayStates=s.dayStates;
+  lastPeriodStats=s.lastPeriodStats||{countedDays:0,required:0};
+  lastResults=s.lastResultsMeta||[];
+  lastPeriodKey=key;
+  lastProfileKey=activeProfileName; // data ownership: this profile owns the restored data
+  const year=planMode==='monthly'
+    ?Number(document.getElementById("year").value)
+    :Number(document.getElementById("yearQ").value);
+  buildHolidayUI(year);
+  setResultsTitle();
+  document.getElementById("periodBanner").classList.remove("visible");
+  document.getElementById("output").innerHTML=renderGrid();
+  recalcCompliance();
+  updateActualKPIs();
+  document.getElementById("downloadIcs").disabled=!isPro||Object.values(dayStates).filter(s=>s.type==='office').length===0;
+  renderYearGrid();renderYTDKpi();renderProfileBadge();
+  autoSave();
+  return true;
+}
+
+function switchPeriod(){
+  if(lastPeriodKey&&Object.keys(dayStates).length) savePeriodState(lastPeriodKey);
+  const newKey=getPeriodKey();
+  if(!restorePeriodState(newKey)) run();
+}
+function debouncedSwitch(){clearTimeout(runTimer);runTimer=setTimeout(switchPeriod,350);}
+
+// ── Feature 2: Navigation arrows ────────────────────────────────
+function navigatePeriod(dir){
+  if(lastPeriodKey&&Object.keys(dayStates).length) savePeriodState(lastPeriodKey);
+  if(planMode==='monthly'){
+    let y=Number(document.getElementById("year").value);
+    let m=Number(document.getElementById("month").value)+dir;
+    if(m<0){m=11;y--;} if(m>11){m=0;y++;}
+    document.getElementById("year").value=y;
+    document.getElementById("month").value=m;
+  } else {
+    let y=Number(document.getElementById("yearQ").value);
+    let q=Number(document.getElementById("quarter").value)+dir;
+    if(q<0){q=3;y--;} if(q>3){q=0;y++;}
+    document.getElementById("yearQ").value=y;
+    document.getElementById("quarter").value=q;
+  }
+  if(!restorePeriodState(getPeriodKey())) run();
+}
+
+// ── Feature 3: Year-at-a-glance ─────────────────────────────────
+function renderYearGrid(){
+  const el=document.getElementById("yagStrip");if(!el) return;
+  const store=getProfileStore();
+  const hasAny=Object.keys(store).length>0||Object.keys(dayStates).length>0;
+  if(!hasAny){el.style.display='none';return;}
+  el.style.display='block';
+  const isMet=s=>Object.values(s.dayStates||{}).filter(d=>d.type==='office').length>=(s.lastPeriodStats?.required||0);
+
+  if(planMode==='monthly'){
+    const year=Number(document.getElementById("year").value);
+    let html='<div class="yag-grid">';
+    for(let m=0;m<12;m++){
+      const key=`monthly:${year}-${pad2(m+1)}`;
+      const isCur=key===lastPeriodKey;
+      let cls='yag-cell';
+      if(isCur){
+        cls+=' yag-current';
+        if(Object.keys(dayStates).length) cls+=Object.values(dayStates).filter(s=>s.type==='office').length>=lastPeriodStats.required?' yag-met':' yag-warn';
+      } else if(store[key]&&Object.keys(store[key].dayStates||{}).length){
+        cls+=isMet(store[key])?' yag-met':' yag-warn';
+      }
+      html+=`<div class="${cls}" onclick="navigateToMonth(${year},${m})">${monthNames[m].slice(0,3)}</div>`;
+    }
+    el.innerHTML=html+'</div>';
+  } else {
+    const year=Number(document.getElementById("yearQ").value);
+    let html='<div class="yag-grid yag-grid-q">';
+    for(let q=0;q<4;q++){
+      const key=`quarterly:${year}-Q${q+1}`;
+      const isCur=key===lastPeriodKey;
+      let cls='yag-cell';
+      if(isCur){
+        cls+=' yag-current';
+        if(Object.keys(dayStates).length) cls+=Object.values(dayStates).filter(s=>s.type==='office').length>=lastPeriodStats.required?' yag-met':' yag-warn';
+      } else if(store[key]&&Object.keys(store[key].dayStates||{}).length){
+        cls+=isMet(store[key])?' yag-met':' yag-warn';
+      }
+      html+=`<div class="${cls}" onclick="navigateToQuarter(${year},${q})">Q${q+1}</div>`;
+    }
+    el.innerHTML=html+'</div>';
+  }
+}
+window.navigateToMonth=function(year,month){
+  if(lastPeriodKey&&Object.keys(dayStates).length) savePeriodState(lastPeriodKey);
+  document.getElementById("year").value=year;document.getElementById("month").value=month;
+  if(!restorePeriodState(getPeriodKey())) run();
+};
+window.navigateToQuarter=function(year,quarter){
+  if(lastPeriodKey&&Object.keys(dayStates).length) savePeriodState(lastPeriodKey);
+  document.getElementById("yearQ").value=year;document.getElementById("quarter").value=quarter;
+  if(!restorePeriodState(getPeriodKey())) run();
+};
+
+// ── Feature 4: Rolling YTD compliance ───────────────────────────
+function renderYTDKpi(){
+  const el=document.getElementById("ytdKpi");if(!el) return;
+  const store=getProfileStore();
+  const year=planMode==='monthly'?Number(document.getElementById("year").value):Number(document.getElementById("yearQ").value);
+  const prefix=planMode==='monthly'?`monthly:${year}`:`quarterly:${year}`;
+  let ytdO=0,ytdR=0,count=0;
+  if(Object.keys(dayStates).length&&lastPeriodKey?.startsWith(prefix)){
+    ytdO+=Object.values(dayStates).filter(s=>s.type==='office').length;
+    ytdR+=lastPeriodStats.required;count++;
+  }
+  for(const [k,ps] of Object.entries(store)){
+    if(!k.startsWith(prefix)||k===lastPeriodKey||!ps.dayStates||!Object.keys(ps.dayStates).length) continue;
+    ytdO+=Object.values(ps.dayStates).filter(s=>s.type==='office').length;
+    ytdR+=(ps.lastPeriodStats?.required||0);count++;
+  }
+  const area=document.getElementById("kpiArea");
+  if(count<2){el.style.display='none';area?.classList.remove('has-ytd');return;}
+  const ok=ytdO>=ytdR,gap=ytdO-ytdR;
+  el.style.display='block';area?.classList.add('has-ytd');
+  el.className=`kpi-box ${ok?'kpi-ok':'kpi-warn'}`;
+  el.innerHTML=`<div class="kpi-label">YTD ${year}</div><div class="kpi-value" style="font-size:20px;padding-top:4px;">${ytdO}<span style="font-size:12px;opacity:.55;"> / ${ytdR}</span></div><div class="kpi-sub">${ok?`+${gap} ahead`:`${Math.abs(gap)} short`} · ${count} periods</div>`;
+}
+
+// ── Feature 5: Settings profiles ────────────────────────────────
+function renderProfileSelect(active){
+  const sel=document.getElementById("profileSelect");if(!sel) return;
+  sel.innerHTML='<option value="">— No profile —</option>'+
+    Object.keys(settingsProfiles).map(n=>`<option value="${n}"${n===active?' selected':''}>${n}</option>`).join('');
+}
+function loadProfileByName(name){
+  const p=settingsProfiles[name];if(!p) return;
+  if(p.pct)     document.getElementById("pct").value=p.pct;
+  if(p.pattern) document.getElementById("pattern").value=p.pattern;
+  if(p.basis)   document.getElementById("basis").value=p.basis;
+  if(p.observed!=null) document.getElementById("observed").checked=p.observed;
+  if(Array.isArray(p.allowed))    {allowed.clear();   p.allowed.forEach(v=>allowed.add(Number(v)));renderDayChips();}
+  if(Array.isArray(p.anchorDays)) {anchorDays.clear();p.anchorDays.forEach(v=>anchorDays.add(Number(v)));renderAnchorChips();}
+  markUnsaved();
+}
+function saveCurrentProfile(){
+  const raw=prompt("Profile name:");if(!raw?.trim()) return;
+  const n=raw.trim();
+  const isNew=!settingsProfiles[n];
+  // Save the profile settings definition
+  settingsProfiles[n]={
+    pct:document.getElementById("pct").value,
+    pattern:document.getElementById("pattern").value,
+    basis:document.getElementById("basis").value,
+    observed:document.getElementById("observed").checked,
+    allowed:Array.from(allowed),
+    anchorDays:Array.from(anchorDays),
+  };
+  if(isNew){
+    // NEW profile: preserve current data under the old profile before switching
+    if(lastPeriodKey&&Object.keys(dayStates).length) savePeriodState(lastPeriodKey);
+    activeProfileName=n;
+    // Blank the view — new profile has no history
+    showProfileEmptyState();
+  }
+  // EXISTING profile: settings updated, no context switch, no blank
+  renderProfileSelect(activeProfileName);
+  renderProfileBadge();
+  autoSave();
+}
+function deleteSelectedProfile(){
+  const name=document.getElementById("profileSelect")?.value;
+  if(!name||!settingsProfiles[name]) return;
+  if(!confirm(`Delete profile "${name}"?`)) return;
+  if(activeProfileName===name) activeProfileName=DEFAULT_PROFILE;
+  delete settingsProfiles[name];renderProfileSelect("");renderProfileBadge();autoSave();
+}
+
+// ── Profile context helpers ──────────────────────────────────────
+function getProfileStore(){
+  if(!allPeriodStates[activeProfileName]) allPeriodStates[activeProfileName]={};
+  return allPeriodStates[activeProfileName];
+}
+function getPeriodLabel(){
+  if(planMode==='monthly'){const y=document.getElementById("year").value,m=Number(document.getElementById("month").value);return `${monthNames[m]} ${y}`;}
+  else{const y=document.getElementById("yearQ").value,q=Number(document.getElementById("quarter").value);return `Q${Number(q)+1} ${y}`;}
+}
+function applyProfileSettings(p){
+  if(!p) return;
+  if(p.pct)     document.getElementById("pct").value=p.pct;
+  if(p.pattern) document.getElementById("pattern").value=p.pattern;
+  if(p.basis)   document.getElementById("basis").value=p.basis;
+  if(p.observed!=null) document.getElementById("observed").checked=p.observed;
+  if(Array.isArray(p.allowed))    {allowed.clear();   p.allowed.forEach(v=>allowed.add(Number(v)));renderDayChips();}
+  if(Array.isArray(p.anchorDays)) {anchorDays.clear();p.anchorDays.forEach(v=>anchorDays.add(Number(v)));renderAnchorChips();}
+}
+
+// Feature 3: Profile switching (full context swap)
+function switchToProfile(name){
+  const targetName=name||DEFAULT_PROFILE;
+  // Save current period under current profile before switching
+  if(lastPeriodKey&&Object.keys(dayStates).length) savePeriodState(lastPeriodKey);
+  // Switch context
+  activeProfileName=targetName;
+  // Apply profile settings if the profile has them
+  const profile=settingsProfiles[targetName];
+  if(profile) applyProfileSettings(profile);
+  // Try to restore current period from new profile's store
+  const key=getPeriodKey();
+  if(!restorePeriodState(key)){
+    // No saved schedule for this period in this profile → show blank with prompt
+    showProfileEmptyState();
+  }
+  renderProfileBadge();
+  autoSave();
+}
+
+// Feature 6: Empty state with profile context message
+function showProfileEmptyState(){
+  dayStates={};
+  lastPeriodStats={countedDays:0,required:0};
+  lastResults=[];
+  lastPeriodKey=getPeriodKey();
+  lastProfileKey=activeProfileName; // blank slate belongs to the current profile
+  const profileLabel=activeProfileName===DEFAULT_PROFILE?'this workspace':`"${activeProfileName}"`;
+  const periodLabel=getPeriodLabel();
+  document.getElementById("output").innerHTML=`
+    <div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <div class="empty-title">No plan yet for ${profileLabel} in ${periodLabel}</div>
+      <div class="empty-sub">Adjust settings for ${profileLabel} and click <strong>Generate Plan</strong> to create a schedule.</div>
+    </div>`;
+  document.getElementById("kpiArea").innerHTML='';
+  document.getElementById("statusBadge").innerHTML='';
+  document.getElementById("downloadIcs").disabled=true;
+  renderYearGrid();renderYTDKpi();renderProfileBadge();
+}
+
+// Feature 4: Active profile badge strip
+function renderProfileBadge(){
+  const strip=document.getElementById("profileBadgeStrip");
+  if(!strip) return;
+  const hasProfiles=Object.keys(settingsProfiles).length>0;
+  const isDefault=activeProfileName===DEFAULT_PROFILE;
+  // Hide if no profiles exist and we're in default
+  if(!hasProfiles&&isDefault){strip.classList.remove('pbs-visible');return;}
+  strip.classList.add('pbs-visible');
+  // Name
+  document.getElementById("pbsName").textContent=isDefault?'Default workspace':activeProfileName;
+  // Settings summary
+  const pct=document.getElementById("pct").value;
+  const pattern=document.getElementById("pattern").value;
+  const province=isPro?document.getElementById("province").value:"ON";
+  const allowedDays=Array.from(allowed).filter(d=>d>=1&&d<=5).map(d=>DOW[d]).join('+');
+  document.getElementById("pbsSettings").textContent=`${pct}% · ${pattern} · ${allowedDays} · ${province}`;
+  // Drift detection (Feature 5)
+  const profile=settingsProfiles[activeProfileName];
+  const basis=document.getElementById("basis").value;
+  const isDrifted=!isDefault&&profile&&(
+    profile.pct!==pct||
+    profile.pattern!==pattern||
+    profile.basis!==basis||
+    JSON.stringify([...allowed].sort())!==JSON.stringify([...(profile.allowed||[])].sort())||
+    JSON.stringify([...anchorDays].sort())!==JSON.stringify([...(profile.anchorDays||[])].sort())
+  );
+  const driftEl=document.getElementById("pbsDrift");
+  const updateBtn=document.getElementById("pbsUpdateBtn");
+  if(isDrifted){
+    driftEl.classList.add('visible');
+    updateBtn.classList.add('visible');
+    strip.classList.add('pbs-modified');
+  } else {
+    driftEl.classList.remove('visible');
+    updateBtn.classList.remove('visible');
+    strip.classList.remove('pbs-modified');
+  }
+  // Sync dropdown selection
+  const sel=document.getElementById("profileSelect");
+  if(sel) sel.value=isDefault?'':activeProfileName;
+}
+
+// Update active profile with current settings (no name prompt)
+function updateActiveProfile(){
+  if(activeProfileName===DEFAULT_PROFILE) return;
+  settingsProfiles[activeProfileName]={
+    pct:document.getElementById("pct").value,
+    pattern:document.getElementById("pattern").value,
+    basis:document.getElementById("basis").value,
+    observed:document.getElementById("observed").checked,
+    allowed:Array.from(allowed),
+    anchorDays:Array.from(anchorDays),
+  };
+  renderProfileSelect(activeProfileName);
+  renderProfileBadge();
+  autoSave();
+}
+
+(function init(){
+  applyConfig();
+  const ms=document.getElementById("month");
+  monthNames.forEach((m,i)=>{const o=document.createElement("option");o.value=String(i);o.textContent=m;ms.appendChild(o);});
+  const now=new Date();
+  document.getElementById("year").value=now.getFullYear();
+  document.getElementById("month").value=String(now.getMonth());
+  document.getElementById("yearQ").value=now.getFullYear();
+  document.getElementById("quarter").value=String(Math.floor(now.getMonth()/3));
+  document.getElementById("province").value=CONFIG.province||"ON";
+
+  const saved=loadState();
+  if(!saved){ applyTheme(CONFIG.defaultTheme||"light"); applyTier(CONFIG.proEnabled||false); }
+  else { applyState(saved); }
+
+  renderDayChips();
+  renderAnchorChips();
+
+  // Wire settings controls — period pickers use switchPeriod, not run
+  document.getElementById("year").addEventListener("input", debouncedSwitch);
+  document.getElementById("yearQ").addEventListener("input", debouncedSwitch);
+  document.getElementById("month").addEventListener("change", switchPeriod);
+  document.getElementById("quarter").addEventListener("change", switchPeriod);
+  ["pct","pattern"].forEach(id=>document.getElementById(id).addEventListener("input",debouncedRun));
+  ["basis","province"].forEach(id=>document.getElementById(id).addEventListener("change",run));
+  document.getElementById("observed").addEventListener("change",run);
+
+  document.getElementById("modeMonthly").addEventListener("click",()=>{if(planMode==="monthly") return;planMode="monthly";updateModeUI();run();});
+  document.getElementById("modeQuarterly").addEventListener("click",()=>{if(!isPro) return;if(planMode==="quarterly") return;planMode="quarterly";updateModeUI();run();});
+  document.getElementById("run").addEventListener("click",run);
+  document.getElementById("downloadIcs").addEventListener("click",downloadIcs);
+  document.getElementById("printBtn").addEventListener("click",()=>{if(isPro) window.print();});
+  document.getElementById("themeToggle").addEventListener("change",function(){applyTheme(this.checked?"dark":"light");autoSave();});
+  document.getElementById("tierToggle").addEventListener("change",function(){applyTier(this.checked);run();});
+
+  // Feature 2: Navigation arrows
+  document.getElementById("navPrev").addEventListener("click",()=>navigatePeriod(-1));
+  document.getElementById("navNext").addEventListener("click",()=>navigatePeriod(1));
+
+  // Feature 5: Profile buttons
+  document.getElementById("profileSaveBtn").addEventListener("click",saveCurrentProfile);
+  document.getElementById("profileDeleteBtn").addEventListener("click",deleteSelectedProfile);
+  // Profile select → full context switch (Feature 3)
+  document.getElementById("profileSelect").addEventListener("change",function(){
+    switchToProfile(this.value);
+  });
+  // Profile badge buttons (Feature 4)
+  document.getElementById("pbsUpdateBtn").addEventListener("click",updateActiveProfile);
+  document.getElementById("pbsSwitchBtn").addEventListener("click",()=>{
+    const sel=document.getElementById("profileSelect");
+    sel?.closest('.card')?.scrollIntoView({behavior:'smooth',block:'start'});
+    setTimeout(()=>sel?.focus(),320);
+  });
+
+  // Explicit save button (Feature 6)
+  document.getElementById("headerSaveBtn").addEventListener("click",performSave);
+
+  // ── Backup modal wiring ──────────────────────────────────────────
+  document.getElementById("headerBackupBtn").addEventListener("click",()=>{
+    // Reset state when opening
+    document.getElementById("exportPassphrase").value="";
+    document.getElementById("exportPassConfirm").value="";
+    document.getElementById("exportPassError").classList.remove("visible");
+    document.getElementById("exportStrFill").style.width="0";
+    document.getElementById("exportStrLabel").textContent="";
+    document.getElementById("importPassphrase").value="";
+    document.getElementById("importPassError").classList.remove("visible");
+    document.getElementById("importPassField").style.display="none";
+    document.getElementById("importDecryptBtn").style.display="none";
+    document.getElementById("dzLoaded").style.display="none";
+    loadedFileData=null;
+    document.getElementById("backupModal").classList.add("open");
+  });
+  document.getElementById("backupModalClose").addEventListener("click",()=>{
+    document.getElementById("backupModal").classList.remove("open");
+  });
+  document.getElementById("backupModal").addEventListener("click",function(e){if(e.target===this)this.classList.remove("open");});
+
+  // Passphrase strength indicator (Feature 6)
+  document.getElementById("exportPassphrase").addEventListener("input",function(){
+    const str=measureStrength(this.value);
+    const fill=document.getElementById("exportStrFill");
+    const lbl =document.getElementById("exportStrLabel");
+    fill.style.width=str.pct+"%";fill.style.background=str.color;
+    lbl.textContent=str.label;lbl.style.color=str.color;
+    document.getElementById("exportPassError").classList.remove("visible");
+  });
+  document.getElementById("exportPassConfirm").addEventListener("input",()=>{
+    document.getElementById("exportPassError").classList.remove("visible");
+  });
+
+  // Export buttons
+  document.getElementById("exportEncryptedBtn").addEventListener("click",exportEncrypted);
+  document.getElementById("exportPlainBtn").addEventListener("click",exportPlain);
+
+  // Dropzone: click + drag-drop
+  const dropzone=document.getElementById("importDropzone");
+  const fileInput=document.getElementById("importFileInput");
+  document.getElementById("importBrowseLink").addEventListener("click",(e)=>{e.preventDefault();fileInput.click();});
+  dropzone.addEventListener("click",()=>fileInput.click());
+  fileInput.addEventListener("change",function(){
+    if(!this.files[0]) return;
+    const r=new FileReader();r.onload=e=>handleFileLoaded(e.target.result);r.readAsText(this.files[0]);
+    this.value=""; // reset so same file can be reloaded
+  });
+  dropzone.addEventListener("dragover",e=>{e.preventDefault();dropzone.classList.add("drag-over");});
+  dropzone.addEventListener("dragleave",()=>dropzone.classList.remove("drag-over"));
+  dropzone.addEventListener("drop",e=>{
+    e.preventDefault();dropzone.classList.remove("drag-over");
+    const file=e.dataTransfer.files[0];if(!file) return;
+    const r=new FileReader();r.onload=ev=>handleFileLoaded(ev.target.result);r.readAsText(file);
+  });
+
+  // Decrypt + import flow
+  document.getElementById("importDecryptBtn").addEventListener("click",decryptAndPreview);
+  document.getElementById("importPassphrase").addEventListener("keydown",e=>{if(e.key==="Enter") decryptAndPreview();});
+  document.getElementById("importCancelBtn").addEventListener("click",()=>{
+    document.getElementById("importPreviewModal").classList.remove("open");
+    document.getElementById("backupModal").classList.add("open");
+  });
+  document.getElementById("importConfirmBtn").addEventListener("click",applyImportedState);
+  document.getElementById("importPreviewModal").addEventListener("click",function(e){
+    if(e.target===this){this.classList.remove("open");document.getElementById("backupModal").classList.add("open");}
+  });
+
+  // Apply to Schedule button
+  document.getElementById("applyExclusions").addEventListener("click",applyExclusionsToSchedule);
+
+  // Custom holiday add button (Feature 4 & 5)
+  document.getElementById("customHolBtn").addEventListener("click",addCustomHoliday);
+  document.getElementById("customHolName").addEventListener("keydown",function(e){if(e.key==="Enter") addCustomHoliday();});
+
+  // Range picker type → show custom field
+  document.getElementById("rpType").addEventListener("change",function(){
+    document.getElementById("rpCustomField").style.display=this.value==="Custom"?"block":"none";
+  });
+
+  // Range picker Add button
+  document.getElementById("rpAdd").addEventListener("click",function(){
+    const start=document.getElementById("rpStart").value;
+    if(!start){document.getElementById("rpStart").focus();return;}
+    const end=document.getElementById("rpEnd").value||start;
+    let type=document.getElementById("rpType").value;
+    if(type==="Custom"){const custom=document.getElementById("rpCustom").value.trim();type=custom||"Custom";}
+    const textarea=document.getElementById("extraExclude");
+    const line=start===end?`${start} — ${type}`:`${start} to ${end} — ${type}`;
+    const current=textarea.value.trim();
+    textarea.value=current?current+"\n"+line:line;
+    document.getElementById("rpStart").value="";
+    document.getElementById("rpEnd").value="";
+    document.getElementById("rpType").value="Vacation";
+    document.getElementById("rpCustomField").style.display="none";
+    document.getElementById("rpCustom").value="";
+    const applyBtn=document.getElementById("applyExclusions");
+    applyBtn.style.borderColor="var(--accent)";applyBtn.style.color="var(--accent)";
+    setTimeout(()=>{applyBtn.style.borderColor="";applyBtn.style.color="";},3000);
+  });
+
+  // ── Direct restore using profile-namespaced store ───────────────
+  const currentPeriodKey=getPeriodKey();
+  const profileStore=getProfileStore();
+  const savedPeriodData=profileStore[currentPeriodKey];
+  const hasSaved=savedPeriodData&&savedPeriodData.dayStates&&Object.keys(savedPeriodData.dayStates).length>0;
+
+  if(hasSaved){
+    dayStates=savedPeriodData.dayStates;
+    lastPeriodStats=savedPeriodData.lastPeriodStats||{countedDays:0,required:0};
+    lastResults=savedPeriodData.lastResultsMeta||[];
+    lastPeriodKey=currentPeriodKey;
+    if(savedPeriodData.pct)     document.getElementById("pct").value=savedPeriodData.pct;
+    if(savedPeriodData.pattern) document.getElementById("pattern").value=savedPeriodData.pattern;
+    if(savedPeriodData.basis)   document.getElementById("basis").value=savedPeriodData.basis;
+    if(savedPeriodData.extraExclude!=null) document.getElementById("extraExclude").value=savedPeriodData.extraExclude;
+    if(savedPeriodData.observed!=null) document.getElementById("observed").checked=savedPeriodData.observed;
+    const year=planMode==='monthly'
+      ?Number(document.getElementById("year").value)
+      :Number(document.getElementById("yearQ").value);
+    buildHolidayUI(year);
+    setResultsTitle();
+    document.getElementById("output").innerHTML=renderGrid();
+    recalcCompliance();
+    updateActualKPIs();
+    renderYearGrid();renderYTDKpi();renderProfileBadge();
+    document.getElementById("downloadIcs").disabled=!isPro||Object.values(dayStates).filter(s=>s.type==='office').length===0;
+    if(saved?.savedTime){
+      const status=document.getElementById("headerSaveStatus");
+      if(status){status.textContent=`Saved ${saved.savedTime}`;status.className="header-save-status saved";}
+    }
+  } else {
+    run();
+  }
+})();
+</script>
+</body>
+</html>
